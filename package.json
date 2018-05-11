@@ -1,0 +1,22 @@
+{
+  "name": "tron-http-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Flott-org/tron-http-server.git"
+  },
+  "author": "tron.watch",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/Flott-org/tron-http-server/issues"
+  },
+  "homepage": "https://github.com/Flott-org/tron-http-server#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
