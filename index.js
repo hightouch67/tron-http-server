@@ -39,9 +39,18 @@ async function run(){
                     parameters : {
                         transaction : "base64 encoded serialized Transaction protobuf"
                     }
+                },
+                "getLastBlock" : {
+                    type : "POST"
                 }
             }
         }, null, 2));
+    });
+
+    app.get('/getLastBlock', async (req, res) => {
+        let blockProto = await rpc.getNowBlock();
+        let serializedBase64 = tools.utils.base64EncodeToString(blockProto.serializeBinary());
+        res.send(serializedBase64);
     });
 
     app.get('/listWitnesses', async (req, res) => {

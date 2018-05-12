@@ -12,6 +12,10 @@ module.exports = class{
         this.api_solidity = caller(`${config.soliditynode.host}:${config.soliditynode.port}`, WalletSolidityClient);
     }
 
+    async getNowBlock(){
+        return await this.api_full.getNowBlock(new EmptyMessage());
+    }
+
     async listWitnesses(){
         return await this.api_full.listWitnesses(new EmptyMessage());
     }
