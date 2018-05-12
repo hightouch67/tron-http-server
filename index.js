@@ -1,8 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const config = require("./config.json");
+const tools = require("tron-http-tools");
+const RpcClient = require("./rpcclient");
 
 async function run(){
+    var rpc = new RpcClient(config);
     var app = express();
     app.use(bodyParser.urlencoded({extended: true}));
 
@@ -42,23 +45,33 @@ async function run(){
     });
 
     app.get('/listWitnesses', async (req, res) => {
-        res.send("not implemented");
+        let witnessesProto = await rpc.listWitnesses();
+        let serializedBase64 = tools.utils.base64EncodeToString(witnessesProto.serializeBinary());
+        res.send(serializedBase64);
     });
 
     app.get('/getAccount', async (req, res) => {
-        res.send("not implemented");
+        let accountRaw = await rpc.getAccount(req.query.address);
+        let serializedBase64 = tools.utils.base64EncodeToString(accountRaw.serializeBinary());
+        res.send(serializedBase64);
     });
 
     app.get('/getTransactionsToThis', async (req, res) => {
-        res.send("not implemented");
+        let transactionsRaw = await rpc.getTransactionsToThis(req.query.address);
+        let serializedBase64 = tools.utils.base64EncodeToString(transactionsRaw.serializeBinary());
+        res.send(serializedBase64);
     });
 
     app.get('/getTransactionsFromThis', async (req, res) => {
-        res.send("not implemented");
+        let transactionsRaw = await rpc.getTransactionsFromThis(req.query.address);
+        let serializedBase64 = tools.utils.base64EncodeToString(transactionsRaw.serializeBinary());
+        res.send(serializedBase64);
     });
 
     app.post('/broadcastTransaction', async (req, res) => {
-        res.send("not implemented");
+        let responseRaw = await rpc.broadcastBase64EncodedTransaction(req.body.transaction);
+        let serializedBase64 = tools.utils.base64EncodeToString(responseRaw.serializeBinary());
+        res.send(serializedBase64);
     });
 
     app.listen(config.port);

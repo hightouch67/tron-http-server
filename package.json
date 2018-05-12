@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Flott-org/tron-http-server#readme",
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "tron-http-tools": "github:Flott-org/tron-http-tools"
   }
 }
