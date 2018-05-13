@@ -23,7 +23,7 @@ module.exports = class{
     }
 
     sendPrice(ws){
-        ws.send(lastPrice);
+        ws.send(this.lastPrice);
     }
 
     broadcastPrice(){
