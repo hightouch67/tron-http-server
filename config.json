@@ -1,5 +1,6 @@
 {
 	"port" : 8088,
+	"port_ws" : 8089,
 	
 	"fullnode" : {
 		"host" : "127.0.0.1",
