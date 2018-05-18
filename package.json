@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Flott-org/tron-http-server#readme",
   "dependencies": {
     "express": "^4.16.3",
+    "mysql": "^2.15.0",
     "tron-http-tools": "github:Flott-org/tron-http-tools",
     "ws": "^5.1.1"
   }

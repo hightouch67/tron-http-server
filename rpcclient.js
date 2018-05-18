@@ -1,7 +1,7 @@
 const caller = require("grpc-caller");
 const tools = require("tron-http-tools");
 
-const {EmptyMessage} = require("@tronprotocol/wallet-api/src/protocol/api/api_pb");
+const {EmptyMessage, NumberMessage} = require("@tronprotocol/wallet-api/src/protocol/api/api_pb");
 const {WalletClient, WalletSolidityClient} = require("@tronprotocol/wallet-api/src/protocol/api/api_grpc_pb");
 const {Account, Block, Transaction} = require("@tronprotocol/wallet-api/src/protocol/core/Tron_pb");
 
@@ -14,6 +14,12 @@ module.exports = class{
 
     async getNowBlock(){
         return await this.api_full.getNowBlock(new EmptyMessage());
+    }
+
+    async getBlockByNum(num){
+        let message = new NumberMessage;
+        message.setNum(num);
+        return await this.api_full.getBlockByNum(message);
     }
 
     async listWitnesses(){
