@@ -1,7 +1,7 @@
 const RpcClient = require("./rpcclient");
 const tools = require("tron-http-tools");
 
-const {TransferContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
+const {TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
 const {Transaction} = require("@tronprotocol/wallet-api/src/protocol/core/Tron_pb");
 
 const {getBase58CheckAddress}= require('@tronprotocol/wallet-api/src/utils/crypto');
@@ -73,7 +73,7 @@ module.exports = class{
                           DEPLOYCONTRACT: 7,
                           WITNESSUPDATECONTRACT: 8,
                           PARTICIPATEASSETISSUECONTRACT: 9, <-------- IMPLEMENTED
-                          ACCOUNTUPDATECONTRACT: 10,
+                          ACCOUNTUPDATECONTRACT: 10, <-------- IMPLEMENTED
                           FREEZEBALANCECONTRACT: 11, <------IMPLEMENTED
                           UNFREEZEBALANCECONTRACT: 12,
                           WITHDRAWBALANCECONTRACT: 13,
@@ -88,21 +88,59 @@ module.exports = class{
                                 let toAddress = getBase58CheckAddress(Array.from(contr.getToAddress()));
                                 let amount = contr.getAmount();
 
-                                await this.sql.insertTransferContract(i, type, desc, ownerAddress, toAddress, amount);
+                                await this.sql.insertContract({
+                                    blockId : i,
+                                    contractType : type,
+                                    contractDesc : desc,
+                                    ownerAddress : ownerAddress,
+                                    toAddress : toAddress,
+                                    amount : amount
+                                });
+                            }
+                            break;
+                            case ContractType.TRANSFERASSETCONTRACT://2
+                            {
+                                let contr= TransferAssetContract.deserializeBinary(Uint8Array.from(value));
+                                let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
+                                let toAddress = getBase58CheckAddress(Array.from(contr.getToAddress()));
+                                let assetName = String.fromCharCode.apply(null, contr.getAssetName());
+                                let amount = contr.getAmount();
+
+                                await this.sql.insertContract({
+                                    blockId : i,
+                                    contractType : type,
+                                    contractDesc : desc,
+                                    ownerAddress : ownerAddress,
+                                    toAddress : toAddress,
+                                    assetName : assetName,
+                                    amount : amount
+                                });
                             }
                             break;
                             case ContractType.VOTEWITNESSCONTRACT://4
                             {
                                 let contr= VoteWitnessContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
-                                await this.sql.insertVoteWitnessContract(i, type, desc, ownerAddress);
+
+                                await this.sql.insertContract({
+                                    blockId : i,
+                                    contractType : type,
+                                    contractDesc : desc,
+                                    ownerAddress : ownerAddress
+                                });
                             }
                             break;
                             case ContractType.WITNESSCREATECONTRACT://5
                             {
                                 let contr= VoteWitnessContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
-                                await this.sql.insertWitnessCreateContract(i, type, desc, ownerAddress);
+
+                                await this.sql.insertContract({
+                                    blockId : i,
+                                    contractType : type,
+                                    contractDesc : desc,
+                                    ownerAddress : ownerAddress
+                                });
                             }
                             break;
                             case ContractType.ASSETISSUECONTRACT: //6
@@ -126,8 +164,13 @@ module.exports = class{
                                     description,
                                     url);
 
-                                await this.sql.insertAssetIssueContract(i, type, desc, ownerAddress, name);
-
+                                await this.sql.insertContract({
+                                    blockId : i,
+                                    contractType : type,
+                                    contractDesc : desc,
+                                    ownerAddress : ownerAddress,
+                                    assetName: assetName
+                                });
                             }
                             break;
                             case ContractType.PARTICIPATEASSETISSUECONTRACT: //9
@@ -138,7 +181,15 @@ module.exports = class{
                                 let assetName = String.fromCharCode.apply(null, contr.getAssetName());
                                 let amount = contr.getAmount();
 
-                                await this.sql.insertParticipateAssetIssueContract(i,type,desc,ownerAddress,toAddress, assetName, amount);
+                                await this.sql.insertContract({
+                                    blockId : i,
+                                    contractType : type,
+                                    contractDesc : desc,
+                                    ownerAddress : ownerAddress,
+                                    toAddress : toAddress,
+                                    assetName : assetName,
+                                    amount : amount
+                                });
                             }
                             break;
                             case ContractType.ACCOUNTUPDATECONTRACT:
@@ -146,7 +197,14 @@ module.exports = class{
                                 let contr = AccountUpdateContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
                                 let accountName = String.fromCharCode.apply(null, contr.getAccountName());
-                                await this.sql.insertAccountUpdateContract(i, type,desc,ownerAddress,accountName);
+
+                                await this.sql.insertContract({
+                                    blockId : i,
+                                    contractType : type,
+                                    contractDesc : desc,
+                                    ownerAddress : ownerAddress,
+                                    accountName : accountName
+                                });
                             }
                             break;
                             case ContractType.FREEZEBALANCECONTRACT://11
@@ -155,7 +213,15 @@ module.exports = class{
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
                                 let frozenBalance = contr.getFrozenBalance();
                                 let frozenDuration = contr.getFrozenDuration();
-                                await this.sql.insertFrozenContract(i, type, desc, ownerAddress, frozenBalance, frozenDuration);
+
+                                await this.sql.insertContract({
+                                    blockId : i,
+                                    contractType : type,
+                                    contractDesc : desc,
+                                    ownerAddress : ownerAddress,
+                                    frozenBalance : frozenBalance,
+                                    frozenDuration : frozenDuration
+                                });
                             }
                             break;
                             default:

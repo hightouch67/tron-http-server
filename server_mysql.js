@@ -32,34 +32,22 @@ module.exports = class {
         return await this.query('INSERT INTO `blocks` (`block_id`, `block_hash`, `block_parent_hash`) VALUES (?,?,?)', params);
     }
 
-    async insertTransferContract(blockId, contractType, contractDesc, ownerAddress, toAddress, amount){
-        let params = [blockId, contractType, contractDesc, ownerAddress, toAddress, amount];
-        return await this.query('INSERT INTO `contracts` (`block_id`, `contract_type`, `contract_desc`, `owner_address`, `to_address`, `amount`) VALUES (?,?,?,?,?,?)', params);
-    }
+    async insertContract(values){
+        let params = [
+            values.blockId,
+            values.contractType,
+            values.contractDesc,
+            values.ownerAddress,
+            (typeof values.toAddress !== 'undefined') ? values.toAddress : null,
+            (typeof values.assetName !== 'undefined') ? values.assetName : null,
+            (typeof values.amount !== 'undefined') ? values.amount: null,
+            (typeof values.frozenBalance !== 'undefined') ? values.frozenBalance: null,
+            (typeof values.frozenDuration !== 'undefined') ? values.frozenDuration: null,
+            (typeof values.accountName !== 'undefined') ? values.accountName: null
+        ];
+        let query = 'INSERT INTO `contracts` (`block_id`, `contract_type`, `contract_desc`, `owner_address`, `to_address`, `asset_name`, `amount`, `frozen_balance`, `frozen_duration`, `account_name`) VALUES (?,?,?,?,?,?,?,?,?,?)';
 
-    async insertFrozenContract(blockId, contractType, contractDesc, ownerAddress, frozenBalance, frozenDuration){
-        let params = [blockId, contractType, contractDesc, ownerAddress, frozenBalance, frozenDuration];
-        return await this.query('INSERT INTO `contracts` (`block_id`, `contract_type`, `contract_desc`, `owner_address`, `frozen_balance`, `frozen_duration`) VALUES (?,?,?,?,?,?)', params);
-    }
-
-    async insertAssetIssueContract(blockId, contractType, contractDesc, ownerAddress, assetName){
-        let params = [blockId, contractType, contractDesc, ownerAddress, assetName];
-        return await this.query('INSERT INTO `contracts` (`block_id`, `contract_type`, `contract_desc`, `owner_address`, `asset_name`) VALUES (?,?,?,?,?)', params);
-    }
-
-    async insertVoteWitnessContract(blockId, contractType, contractDesc, ownerAddress){
-        let params = [blockId, contractType, contractDesc, ownerAddress];
-        return await this.query('INSERT INTO `contracts` (`block_id`, `contract_type`, `contract_desc`, `owner_address`) VALUES (?,?,?,?)', params);
-    }
-
-    async insertWitnessCreateContract(blockId, contractType, contractDesc, ownerAddress){
-        let params = [blockId, contractType, contractDesc, ownerAddress];
-        return await this.query('INSERT INTO `contracts` (`block_id`, `contract_type`, `contract_desc`, `owner_address`) VALUES (?,?,?,?)', params);
-    }
-
-    async insertAccountUpdateContract(blockId, contractType, contractDesc, ownerAddress, account_name){
-        let params = [blockId, contractType, contractDesc, ownerAddress, account_name];
-        return await this.query('INSERT INTO `contracts` (`block_id`, `contract_type`, `contract_desc`, `owner_address`, `account_name`) VALUES (?,?,?,?,?)', params);
+        return await this.query(query, params);
     }
 
     async insertAsset(ownerAddress, name, totalSupply, trxNum, num, startTime, endTime, decayRatio, voteScore, description, url){
@@ -75,11 +63,6 @@ module.exports = class {
                 }
             });
         });
-    }
-
-    async insertParticipateAssetIssueContract(blockId, contractType, contractDesc, ownerAddress, toAddress, assetName, amount){
-        let params = [blockId, contractType, contractDesc, ownerAddress, toAddress, assetName, amount];
-        return await this.query('INSERT INTO `contracts` (`block_id`, `contract_type`, `contract_desc`, `owner_address`, `to_address`, `asset_name`, `amount`) VALUES (?,?,?,?,?,?,?)', params);
     }
 
 }
