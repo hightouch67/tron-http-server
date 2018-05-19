@@ -1,7 +1,7 @@
 const RpcClient = require("./rpcclient");
 const tools = require("tron-http-tools");
 
-const {TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
+const {WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
 const {Transaction} = require("@tronprotocol/wallet-api/src/protocol/core/Tron_pb");
 
 const {getBase58CheckAddress}= require('@tronprotocol/wallet-api/src/utils/crypto');
@@ -51,7 +51,6 @@ module.exports = class{
                 for(var j = 0;j<transactionsList.length;j++){
                     let transaction = transactionsList[j].toObject();
 
-
                     let contracts = transactionsList[j].getRawData().getContractList();
 
                     for(var c = 0;c<contracts.length;c++){
@@ -65,13 +64,13 @@ module.exports = class{
                         /*
                           ACCOUNTCREATECONTRACT: 0,
                           TRANSFERCONTRACT: 1, <------IMPLEMENTED
-                          TRANSFERASSETCONTRACT: 2,
+                          TRANSFERASSETCONTRACT: 2, <-------- IMPLEMENTED
                           VOTEASSETCONTRACT: 3,
                           VOTEWITNESSCONTRACT: 4, <------IMPLEMENTED
                           WITNESSCREATECONTRACT: 5, <------IMPLEMENTED
                           ASSETISSUECONTRACT: 6, <------IMPLEMENTED
                           DEPLOYCONTRACT: 7,
-                          WITNESSUPDATECONTRACT: 8,
+                          WITNESSUPDATECONTRACT: 8, <-------- IMPLEMENTED
                           PARTICIPATEASSETISSUECONTRACT: 9, <-------- IMPLEMENTED
                           ACCOUNTUPDATECONTRACT: 10, <-------- IMPLEMENTED
                           FREEZEBALANCECONTRACT: 11, <------IMPLEMENTED
@@ -176,6 +175,19 @@ module.exports = class{
                                 });
                             }
                             break;
+                            case ContractType.WITNESSUPDATECONTRACT:
+                            {
+                                let contr = WitnessUpdateContract.deserializeBinary(Uint8Array.from(value));
+                                let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
+
+                                await this.sql.insertContract({
+                                    blockId : i,
+                                    contractType : type,
+                                    contractDesc : desc,
+                                    ownerAddress : ownerAddress
+                                });
+                            }
+                            break;
                             case ContractType.PARTICIPATEASSETISSUECONTRACT: //9
                             {
                                 let contr = ParticipateAssetIssueContract.deserializeBinary(Uint8Array.from(value));
@@ -234,7 +246,7 @@ module.exports = class{
                 }
             }
 
-            this.sql.insertBlock(blockId, blockHash, blockParentHash);
+            await this.sql.insertBlock(blockId, blockHash, blockParentHash);
         }
     }
 
@@ -267,6 +279,7 @@ module.exports = class{
 
     async main(){
         console.log(Date.now() + " updater main loop start");
+        let startTime = Date.now();
 
         let lastDbBlock = await this.sql.getLastBlock().catch(x => false);
         if(lastDbBlock === false)
@@ -287,9 +300,16 @@ module.exports = class{
             if(nextBlockId < nowBlockId){
                 await this.loadBlocksBetween(nextBlockId, nowBlockId);
             }
-
-
             //console.log(lastDbBlock);
         }
+
+        let timeSpent = Date.now() - startTime;
+        let nextMain = 3000 - timeSpent;
+        if(nextMain < 0)
+            nextMain = 0;
+        console.log(`waiting ${nextMain} for next main()`);
+        setTimeout(()=>{
+           this.main();
+        },nextMain);
     }
 }
