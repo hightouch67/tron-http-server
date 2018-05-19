@@ -152,7 +152,8 @@ module.exports = class{
                                 let description = String.fromCharCode.apply(null, contr.getDescription());
                                 let url = String.fromCharCode.apply(null, contr.getUrl());
 
-                                await this.sql.insertAsset(ownerAddress,
+                                await this.sql.insertAsset(
+                                    ownerAddress,
                                     name,
                                     contr.getTotalSupply(),
                                     contr.getTrxNum(),
@@ -162,14 +163,16 @@ module.exports = class{
                                     contr.getDecayRatio(),
                                     contr.getVoteScore(),
                                     description,
-                                    url);
+                                    url,
+                                    i
+                                );
 
                                 await this.sql.insertContract({
                                     blockId : i,
                                     contractType : type,
                                     contractDesc : desc,
                                     ownerAddress : ownerAddress,
-                                    assetName: assetName
+                                    assetName: name
                                 });
                             }
                             break;

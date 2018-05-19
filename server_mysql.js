@@ -24,7 +24,9 @@ module.exports = class {
     }
 
     async deleteBlocksStartingAt(start){
-        return await this.query('DELETE FROM `blocks` WHERE `block_id` >= ?', [start]);
+        await this.query('DELETE FROM `assets` WHERE `block_id` >= ?', [start]);
+        await this.query('DELETE FROM `blocks` WHERE `block_id` >= ?', [start]);
+        await this.query('DELETE FROM `contracts` WHERE `block_id` >= ?', [start]);
     }
 
     async insertBlock(blockId, blockHash, blockParentHash){
@@ -50,10 +52,10 @@ module.exports = class {
         return await this.query(query, params);
     }
 
-    async insertAsset(ownerAddress, name, totalSupply, trxNum, num, startTime, endTime, decayRatio, voteScore, description, url){
+    async insertAsset(ownerAddress, name, totalSupply, trxNum, num, startTime, endTime, decayRatio, voteScore, description, url, blockId){
         return new Promise((resolve, reject)=>{
-            let params = [ownerAddress, name, totalSupply, trxNum, num, startTime, endTime, decayRatio, voteScore, description, url];
-            let queryStr = "INSERT INTO `assets` (`owner_address`, `name`, `total_supply`, `trx_num`, `num`, `start_time`, `end_time`, `decay_ratio`, `vote_score`, `description`, `url`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+            let params = [ownerAddress, name, totalSupply, trxNum, num, startTime, endTime, decayRatio, voteScore, description, url, blockId];
+            let queryStr = "INSERT INTO `assets` (`owner_address`, `name`, `total_supply`, `trx_num`, `num`, `start_time`, `end_time`, `decay_ratio`, `vote_score`, `description`, `url`, `block_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
             this.pool.query(queryStr, params, function (error, result) {
                 if (error){
                     console.log(error);
