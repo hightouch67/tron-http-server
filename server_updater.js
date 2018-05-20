@@ -1,7 +1,7 @@
 const RpcClient = require("./rpcclient");
 const tools = require("tron-http-tools");
 
-const {WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
+const {WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
 const {Transaction} = require("@tronprotocol/wallet-api/src/protocol/core/Tron_pb");
 
 const {getBase58CheckAddress}= require('@tronprotocol/wallet-api/src/utils/crypto');
@@ -34,14 +34,11 @@ module.exports = class{
     }
 
     async loadBlocksBetween(start, end){
-        console.log(`Loading blocks between ${start} and ${end}`);
-
         for(var i = start;i<=end;i++){
             console.log(`Loading block ${i}`);
 
             let blockLoadStart = Date.now();
             let block = await this.rpc.getBlockByNum(i);
-            console.log(`block loading took ${Date.now() - blockLoadStart}`);
 
             let blockHeader = block.getBlockHeader().toObject();
             let blockId = blockHeader.rawData.number;
@@ -58,7 +55,6 @@ module.exports = class{
 
             let newContracts = [];
 
-            console.log(`NUM TRANSACTIONS: ${transactionsList.length}`);
             if(transactionsList.length > 0){
                 for(var j = 0;j<transactionsList.length;j++){
                     let transaction = transactionsList[j].toObject();
@@ -249,6 +245,20 @@ module.exports = class{
                                 });
                             }
                                 break;
+
+                            case ContractType.WITHDRAWBALANCECONTRACT:
+                            {
+                                let contr = WithdrawBalanceContract.deserializeBinary(Uint8Array.from(value));
+                                let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
+
+                                newContracts.push({
+                                    block_id : i,
+                                    contract_type : type,
+                                    contract_desc : desc,
+                                    owner_address : ownerAddress
+                                });
+                            }
+                            break;
                             default:
                                 throw `contract type ${type} not implemented`;
                         }
@@ -256,7 +266,6 @@ module.exports = class{
                 }
             }
 
-            console.log(`inserting contracts took ${Date.now() - blockLoadStart}`);
             if(newContracts.length > 0){
                 newBlock.num_contracts = newContracts.length;
                 await this.db.insertContracts(newContracts);
@@ -298,12 +307,10 @@ module.exports = class{
     }
 
     async cleanForkedDbBlocks(lastDbBlock){
-        console.log("cleaning forked blocks from db");
         let rpcBlock = await this.getRpcBlockInfoByNum(lastDbBlock.block_id);
         if(lastDbBlock.block_hash == rpcBlock.blockHash &&
             lastDbBlock.block_parent_hash == rpcBlock.blockParentHash &&
             lastDbBlock.block_id == rpcBlock.blockId){
-            console.log(`no fork detected. Current db block: ${lastDbBlock.block_id}`);
             return lastDbBlock.block_id;
         }
 
@@ -330,7 +337,6 @@ module.exports = class{
     }
 
     async main(){
-        console.log(Date.now() + " updater main loop start");
         let startTime = Date.now();
 
         let lastDbBlock = await this.db.getLastBlock();
@@ -340,7 +346,6 @@ module.exports = class{
         let nowBlock = await this.rpc.getNowBlock();
         let nowBlockHeader = nowBlock.getBlockHeader().toObject();
         let nowBlockId = nowBlockHeader.rawData.number;
-        console.log(nowBlockId);
 
         if (lastDbBlock.length == 0){
             //no blocks in the database
@@ -356,10 +361,9 @@ module.exports = class{
         }
 
         let timeSpent = Date.now() - startTime;
-        let nextMain = 3000 - timeSpent;
+        let nextMain = 1000 - timeSpent;
         if(nextMain < 0)
             nextMain = 0;
-        console.log(`waiting ${nextMain} for next main()`);
         setTimeout(()=>{
            this.main();
         },nextMain);
