@@ -44,7 +44,7 @@ module.exports = class{
                         }
                     },
                     "getLastBlock" : {
-                        type : "POST"
+                        type : "GET"
                     }
                 }
             }, null, 2));
