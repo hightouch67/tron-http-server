@@ -48,10 +48,14 @@ module.exports = class {
         return await this.db.collection('blocks').find().sort({block_id:-1}).limit(1).toArray();
     }
 
+    async getBlockByNum(num){
+        return await this.db.collection('blocks').find({block_id:{$eq:num}}).limit(1).toArray().then(x => x[0]);
+    }
+
     async deleteBlocksStartingAt(start){
-        await this.query('DELETE FROM `assets` WHERE `block_id` >= ?', [start]);
-        await this.query('DELETE FROM `blocks` WHERE `block_id` >= ?', [start]);
-        await this.query('DELETE FROM `contracts` WHERE `block_id` >= ?', [start]);
+        await this.db.collection('blocks').remove({block_id:{$gte:start}});
+        await this.db.collection('assets').remove({block_id:{$gte:start}});
+        await this.db.collection('contracts').remove({block_id:{$gte:start}});
     }
 
     async insertBlock(block){

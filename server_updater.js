@@ -18,7 +18,6 @@ module.exports = class{
     }
 
     async getRpcBlockInfoByNum(id){
-        console.log(`getrpc ${id}`);
         let block = await this.rpc.getBlockByNum(id);
         let blockHeader = block.getBlockHeader().toObject();
         let blockId = blockHeader.rawData.number;
@@ -267,8 +266,35 @@ module.exports = class{
         }
     }
 
-    async findFirstNonForkedBlock(min, max, current){
+    async findFirstNonForkedBlock(min, max){
+        //this is going 10 back at a time, because usually forks are only short.
+        //might want to replace with binary search at some point
 
+        let current = max;
+        let steps = 10;
+        while(current > 0){
+            let rpcBlock = await this.getRpcBlockInfoByNum(current);
+            let dbBlock = await this.db.getBlockByNum(current);
+
+            if(dbBlock.block_hash == rpcBlock.blockHash ||
+                dbBlock.block_parent_hash == rpcBlock.blockParentHash){
+                //non-forked block detected
+                return current;
+            }else{
+                console.log('forked block: ' + current);
+                if(current == 1){
+                    //giving up
+                    current=0;
+                }else{
+                    current -= steps;
+                    if(current < 1)
+                        current = 1;
+                    steps++;
+                }
+            }
+        }
+
+        throw 'this should never happen because complete forks should be detected before.';
     }
 
     async cleanForkedDbBlocks(lastDbBlock){
@@ -282,16 +308,25 @@ module.exports = class{
         }
 
         let rpcBlockZero = await this.getRpcBlockInfoByNum(0);
-        if(lastDbBlock.block_hash != rpcBlockZero.blockHash ||
-            lastDbBlock.block_parent_hash != rpcBlockZero.blockParentHash){
+        let dbBlockZero = await this.db.getBlockByNum(0);
+
+        if(dbBlockZero.block_hash != rpcBlockZero.blockHash ||
+            dbBlockZero.block_parent_hash != rpcBlockZero.blockParentHash){
+
+            console.log('block zero:');
+            console.log(rpcBlockZero);
+            console.log('current:');
+            console.log(lastDbBlock);
 
             console.log(`fork detected! complete reset. starting from zero`);
             this.db.deleteBlocksStartingAt(0);
             return -1;
         }
 
-        let firstNonForkedBlock = await this.findFirstNonForkedBlock(0, lastDbBlock.block_id, parseInt(lastDbBlock.block_id/2));
-        console.log("blargh!");
+
+        let firstNonForkedBlock = await this.findFirstNonForkedBlock(0, lastDbBlock.block_id);
+        await this.db.deleteBlocksStartingAt(firstNonForkedBlock);
+        console.log(`cleaned forked blocks between ${firstNonForkedBlock} and ${lastDbBlock.block_id}`)
     }
 
     async main(){
