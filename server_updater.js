@@ -54,21 +54,17 @@ module.exports = class{
                 block_id : i,
                 block_hash : blockHash,
                 block_parent_hash : blockParentHash,
-                transactions : []
+                num_transactions : 0
             };
+
+            let newContracts = [];
 
             console.log(`NUM TRANSACTIONS: ${transactionsList.length}`);
             if(transactionsList.length > 0){
-                console.log(`num transactions: ${transactionsList.length}`);
                 for(var j = 0;j<transactionsList.length;j++){
                     let transaction = transactionsList[j].toObject();
 
                     let contracts = transactionsList[j].getRawData().getContractList();
-
-                    let newTransaction = {
-                        contracts : [],
-                        timestamp : transactionsList[j].getRawData().getTimestamp()
-                    };
 
                     for (var c = 0; c < contracts.length; c++) {
                         var contract = contracts[c];
@@ -104,7 +100,8 @@ module.exports = class{
                                 let toAddress = getBase58CheckAddress(Array.from(contr.getToAddress()));
                                 let amount = contr.getAmount();
 
-                                newTransaction.contracts.push({
+                                newContracts.push({
+                                    block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
@@ -121,7 +118,8 @@ module.exports = class{
                                 let assetName = String.fromCharCode.apply(null, contr.getAssetName());
                                 let amount = contr.getAmount();
 
-                                newTransaction.contracts.push({
+                                newContracts.push({
+                                    block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
@@ -136,7 +134,8 @@ module.exports = class{
                                 let contr = VoteWitnessContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
 
-                                newTransaction.contracts.push({
+                                newContracts.push({
+                                    block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress
@@ -148,7 +147,8 @@ module.exports = class{
                                 let contr = VoteWitnessContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
 
-                                newTransaction.contracts.push({
+                                newContracts.push({
+                                    block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress
@@ -179,7 +179,8 @@ module.exports = class{
                                     block_id : i
                                 });
 
-                                newTransaction.contracts.push({
+                                newContracts.push({
+                                    block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
@@ -191,7 +192,8 @@ module.exports = class{
                                 let contr = WitnessUpdateContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
 
-                                newTransaction.contracts.push({
+                                newContracts.push({
+                                    block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress
@@ -206,7 +208,8 @@ module.exports = class{
                                 let assetName = String.fromCharCode.apply(null, contr.getAssetName());
                                 let amount = contr.getAmount();
 
-                                newTransaction.contracts.push({
+                                newContracts.push({
+                                    block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
@@ -221,7 +224,8 @@ module.exports = class{
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
                                 let accountName = String.fromCharCode.apply(null, contr.getAccountName());
 
-                                newTransaction.contracts.push({
+                                newContracts.push({
+                                    block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
@@ -236,7 +240,8 @@ module.exports = class{
                                 let frozenBalance = contr.getFrozenBalance();
                                 let frozenDuration = contr.getFrozenDuration();
 
-                                newTransaction.contracts.push({
+                                newContracts.push({
+                                    block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
@@ -249,11 +254,14 @@ module.exports = class{
                                 throw `contract type ${type} not implemented`;
                         }
                     }
-                    newBlock.transactions.push(newTransaction);
                 }
             }
 
             console.log(`inserting contracts took ${Date.now() - blockLoadStart}`);
+            if(newContracts.length > 0){
+                newBlock.num_contracts = newContracts.length;
+                await this.db.insertContracts(newContracts);
+            }
             await this.db.insertBlock(newBlock);
             console.log(`inserting block took ${Date.now() - blockLoadStart}`);
         }

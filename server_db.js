@@ -62,5 +62,8 @@ module.exports = class {
         return await this.db.collection('assets').insert(asset);
     }
 
+    async insertContracts(contracts){
+        return await this.db.collection('contracts').insert(contracts);
+    }
 
 }
