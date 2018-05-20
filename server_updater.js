@@ -158,7 +158,10 @@ module.exports = class{
                                 let description = String.fromCharCode.apply(null, contr.getDescription());
                                 let url = String.fromCharCode.apply(null, contr.getUrl());
 
-                                await this.db.insertAsset({
+                                newContracts.push({
+                                    block_id : i,
+                                    contract_type : type,
+                                    contract_desc : desc,
                                     owner_address : ownerAddress,
                                     name : name,
                                     total_supply : contr.getTotalSupply(),
@@ -169,16 +172,7 @@ module.exports = class{
                                     decay_ratio : contr.getDecayRatio(),
                                     vote_score : contr.getVoteScore(),
                                     description : description,
-                                    url : url,
-                                    block_id : i
-                                });
-
-                                newContracts.push({
-                                    block_id : i,
-                                    contract_type : type,
-                                    contract_desc : desc,
-                                    owner_address : ownerAddress,
-                                    name : name
+                                    url : url
                                 });
                             }
                                 break;
@@ -268,9 +262,9 @@ module.exports = class{
             if(newContracts.length > 0){
                 newBlock.num_contracts = newContracts.length;
                 await this.db.insertContracts(newContracts);
-                this.updateDbAccounts(newContracts);
+                await this.updateDbAccounts(newContracts);
             }
-            die();
+
             await this.db.insertBlock(newBlock);
             console.log(`inserting block ${i} took ${Date.now() - blockLoadStart}`);
         }
@@ -300,16 +294,16 @@ module.exports = class{
     /*amount has to be Decimal*/
     accountAddTokenBalance(account, assetName, amount){
         account = this.accountVerifyHasAsset(account, assetName);
-        account.tokens[assetName].amount = new Decimal(account.tokens[assetName].amount).add(amount);
+        account.tokens[assetName].amount = new Decimal(account.tokens[assetName].amount).add(amount).toString();
         return account;
     }
 
     async updateDbAccount(account, contracts){
-        let biggestBlock = -1;
+        let biggestBlock = account.last_block;
         for(let c in contracts){
             let contract = contracts[c];
             if(account.last_block >= contract.block_id){
-                console.log(`account ${account.address} skipping block ${contract.block_id}, already at block ${account.last_block}`);
+                //console.log(`account ${account.address} skipping block ${contract.block_id}, already at block ${account.last_block}`);
                 continue;
             }
 
@@ -322,10 +316,10 @@ module.exports = class{
                         let amount = new Decimal(contract.amount);
 
                         if(contract.owner_address == account.address){
-                            account.trx = new Decimal(account.trx).minus(amount);
+                            account.trx = new Decimal(account.trx).minus(amount).toString();
                         }
                         if(contract.to_address == account.address){
-                            account.trx = new Decimal(account.trx).plus(amount);
+                            account.trx = new Decimal(account.trx).plus(amount).toString();
                         }
 
                     }
@@ -380,7 +374,9 @@ module.exports = class{
             }
         }
         account.last_block = biggestBlock;
-        console.log('finished account: ' + JSON.stringify(account));
+
+        await this.db.insertAccount(account);
+        //console.log('finished account: ' + JSON.stringify(account));
     }
 
     /*updates the accounts stored in the 'accounts' collection*/
@@ -401,7 +397,7 @@ module.exports = class{
         for(let c in newContracts){
             let contract = newContracts[c];
             if(affectingContractTypes[contract.contract_type]){
-                console.log(`contract of type ${contract.contract_desc} is affecting balance`);
+                //console.log(`contract of type ${contract.contract_desc} is affecting balance`);
 
                 let ownerAddress = contract.owner_address;
                 let toAddress = contract.to_address;
@@ -417,18 +413,26 @@ module.exports = class{
                     addressContractLinks[toAddress].push(contract);
                 }
             }else{
-                console.log(contract.contract_desc);
+                //console.log(contract.contract_desc);
             }
         }
 
         let addresses = Object.keys(addressContractLinks);
+        let accounts = await this.db.getAccounts(addresses);
+
+        for(let a in accounts){
+            let account = accounts[a];
+
+            await this.updateDbAccount(account, addressContractLinks[account.address]);
+            addresses.splice(addresses.indexOf(account.address), 1);
+        }
+
+        //console.log(`${addresses.length} accounts were previously unknown`);
         for(let a in addresses){
             let address = addresses[a];
             let account = this.getNewDbAccount(address);
-            this.updateDbAccount(account, addressContractLinks[address]);
+            await this.updateDbAccount(account, addressContractLinks[address]);
         }
-
-        die();
     }
 
     async findFirstNonForkedBlock(min, max){

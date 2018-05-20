@@ -70,9 +70,18 @@ module.exports = class {
         return await this.db.collection('contracts').insert(contracts);
     }
 
-    async getAccounts(accounts){
+    async getAccounts(addresses){
+        //console.log(addresses);
+        return await this.db.collection('accounts').find({address : {$in: addresses}}).toArray();
+    }
 
-
+    async insertAccount(account){
+        let address = account.address;
+        delete account.address;
+        await this.db.collection('accounts').update(
+            {address : address},
+            {$set: account,$setOnInsert: {address : address}},
+            {upsert : true});
     }
 
 }
