@@ -6,9 +6,9 @@ const config = require("./config.json");
 
 async function run(){
     const db = new ServerDb();
-    await db.connect(config)
+    await db.connect(config);
 
-    //const http = new ServerHttp(config, sql);
+    //const http = new ServerHttp(config, db);
     //const ws = new ServerWebsocket(config);
     const updater = new ServerUpdater(config, db);
 }

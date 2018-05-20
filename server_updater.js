@@ -1,4 +1,5 @@
 const RpcClient = require("./rpcclient");
+const {Decimal} = require('decimal.js');
 const tools = require("tron-http-tools");
 
 const {WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
@@ -34,9 +35,7 @@ module.exports = class{
     }
 
     async loadBlocksBetween(start, end){
-        for(var i = start;i<=end;i++){
-            console.log(`Loading block ${i}`);
-
+        for(let i = start;i<=end;i++){
             let blockLoadStart = Date.now();
             let block = await this.rpc.getBlockByNum(i);
 
@@ -56,13 +55,13 @@ module.exports = class{
             let newContracts = [];
 
             if(transactionsList.length > 0){
-                for(var j = 0;j<transactionsList.length;j++){
+                for(let j = 0;j<transactionsList.length;j++){
                     let transaction = transactionsList[j].toObject();
 
                     let contracts = transactionsList[j].getRawData().getContractList();
 
-                    for (var c = 0; c < contracts.length; c++) {
-                        var contract = contracts[c];
+                    for (let c = 0; c < contracts.length; c++) {
+                        let contract = contracts[c];
                         let type = contract.getType();
                         let parameter = contract.getParameter();
                         let value = parameter.getValue();
@@ -269,10 +268,167 @@ module.exports = class{
             if(newContracts.length > 0){
                 newBlock.num_contracts = newContracts.length;
                 await this.db.insertContracts(newContracts);
+                this.updateDbAccounts(newContracts);
             }
+            die();
             await this.db.insertBlock(newBlock);
-            console.log(`inserting block took ${Date.now() - blockLoadStart}`);
+            console.log(`inserting block ${i} took ${Date.now() - blockLoadStart}`);
         }
+    }
+
+    getNewDbAccount(address){
+        return {
+            address : address,
+            trx : 0,
+            tokens : {
+
+            },
+            last_block : -1
+        }
+    }
+
+    /*adds the asset object to an account if not present*/
+    accountVerifyHasAsset(account, name){
+        if(!account.tokens[name]){
+            account.tokens[name] = {
+                amount : 0
+            };
+        }
+        return account;
+    }
+
+    /*amount has to be Decimal*/
+    accountAddTokenBalance(account, assetName, amount){
+        account = this.accountVerifyHasAsset(account, assetName);
+        account.tokens[assetName].amount = new Decimal(account.tokens[assetName].amount).add(amount);
+        return account;
+    }
+
+    async updateDbAccount(account, contracts){
+        let biggestBlock = -1;
+        for(let c in contracts){
+            let contract = contracts[c];
+            if(account.last_block >= contract.block_id){
+                console.log(`account ${account.address} skipping block ${contract.block_id}, already at block ${account.last_block}`);
+                continue;
+            }
+
+            if(contract.block_id > biggestBlock)
+                biggestBlock = contract.block_id;
+
+            switch (contract.contract_type){
+                case ContractType.TRANSFERCONTRACT:
+                    {
+                        let amount = new Decimal(contract.amount);
+
+                        if(contract.owner_address == account.address){
+                            account.trx = new Decimal(account.trx).minus(amount);
+                        }
+                        if(contract.to_address == account.address){
+                            account.trx = new Decimal(account.trx).plus(amount);
+                        }
+
+                    }
+                    break;
+                case ContractType.TRANSFERASSETCONTRACT:
+                    {
+
+                        let amount = new Decimal(contract.amount);
+                        let name = contract.asset_name;
+
+                        if(contract.owner_address == account.address){
+                            account = this.accountAddTokenBalance(account, name, amount);
+                        }
+                        if(contract.to_address == account.address){
+                            account = this.accountAddTokenBalance(account, name, amount.mul(-1));
+                        }
+                    }
+                    break;
+                case ContractType.ASSETISSUECONTRACT:
+                    {
+
+                        let amount = new Decimal(contract.total_supply);
+                        let name = contract.name;
+                        if(contract.owner_address == account.address){
+                            account = this.accountAddTokenBalance(account, name, amount);
+                        }
+                    }
+                    break;
+                case ContractType.PARTICIPATEASSETISSUECONTRACT:
+                    {
+
+                        let amount = new Decimal(contract.amount);
+                        let name = contract.asset_name;
+                        if(contract.owner_address == account.address){
+                            account = this.accountAddTokenBalance(account, name, amount);
+                        }
+                    }
+                    break;
+                case ContractType.ACCOUNTUPDATECONTRACT:
+                    if(contract.owner_address == account.address) {
+                        account.account_name = contract.account_name
+                    }
+                    break;
+                case ContractType.FREEZEBALANCECONTRACT:
+                    account.frozen_balance = contract.frozen_balance;
+                    break;
+                case ContractType.UNFREEZEBALANCECONTRACT:
+                    account.frozen_balance = 0;
+                    break;
+                default:
+                    throw `updateDbAccount contract not implemented: ${contract.contract_desc}`;
+            }
+        }
+        account.last_block = biggestBlock;
+        console.log('finished account: ' + JSON.stringify(account));
+    }
+
+    /*updates the accounts stored in the 'accounts' collection*/
+    async updateDbAccounts(newContracts){
+        /*contracts which affect the state of an account, meaning the account has to be updated.*/
+        let affectingContractTypes = {}
+        affectingContractTypes[ContractType.TRANSFERCONTRACT] = 1;
+        affectingContractTypes[ContractType.TRANSFERASSETCONTRACT] = 1;
+        affectingContractTypes[ContractType.ASSETISSUECONTRACT] = 1;
+        affectingContractTypes[ContractType.PARTICIPATEASSETISSUECONTRACT] = 1;
+        affectingContractTypes[ContractType.ACCOUNTUPDATECONTRACT] = 1;
+        affectingContractTypes[ContractType.FREEZEBALANCECONTRACT] = 1;
+        affectingContractTypes[ContractType.UNFREEZEBALANCECONTRACT] = 1;
+
+        //update accounts
+        let affectedAddresses = [];
+        let addressContractLinks = {};
+        for(let c in newContracts){
+            let contract = newContracts[c];
+            if(affectingContractTypes[contract.contract_type]){
+                console.log(`contract of type ${contract.contract_desc} is affecting balance`);
+
+                let ownerAddress = contract.owner_address;
+                let toAddress = contract.to_address;
+                if(ownerAddress){
+                    if(!addressContractLinks[ownerAddress])
+                        addressContractLinks[ownerAddress] = [];
+                    addressContractLinks[ownerAddress].push(contract);
+                }
+
+                if(toAddress && ownerAddress != toAddress){
+                    if(!addressContractLinks[toAddress])
+                        addressContractLinks[toAddress] = [];
+                    addressContractLinks[toAddress].push(contract);
+                }
+            }else{
+                console.log(contract.contract_desc);
+            }
+        }
+
+        let addresses = Object.keys(addressContractLinks);
+        for(let a in addresses){
+            let address = addresses[a];
+            let account = this.getNewDbAccount(address);
+            this.updateDbAccount(account, addressContractLinks[address]);
+        }
+
+        die();
     }
 
     async findFirstNonForkedBlock(min, max){
@@ -361,7 +517,7 @@ module.exports = class{
         }
 
         let timeSpent = Date.now() - startTime;
-        let nextMain = 1000 - timeSpent;
+        let nextMain = 1500 - timeSpent;
         if(nextMain < 0)
             nextMain = 0;
         setTimeout(()=>{

@@ -70,4 +70,9 @@ module.exports = class {
         return await this.db.collection('contracts').insert(contracts);
     }
 
+    async getAccounts(accounts){
+
+
+    }
+
 }
