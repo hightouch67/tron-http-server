@@ -12,12 +12,11 @@
 		"port" : "50052"
 	},
 	
-	"sql" : {
-		"connectionLimit" : 5,
+	"mongo" : {
+		"db" : "tronwatch",
 		"host" : "127.0.0.1",
-		"port" : 3306,
-		"user" : "root",
+		"username" : "tronwatch",
 		"password" : "",
-		"database" : "tron"
+		"auth_mechanism" : "SCRAM-SHA-1"
 	}
 }
