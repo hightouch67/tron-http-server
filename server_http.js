@@ -77,7 +77,11 @@ module.exports = class{
                             parameters:{
                                 address : "base58 encoded TRON address"
                             }
+                        },
+                        "getTokens" : {
+                            type : "GET"
                         }
+
 
                     }
                 }
@@ -139,14 +143,20 @@ module.exports = class{
         });
 
         app.get('/getTransactionsToThis', async (req, res) => {
-            let account = await this.db.getContractsToThis(req.query.address).catch(x => null);
-            res.send(account);
+            let transactions = await this.db.getContractsToThis(req.query.address).catch(x => null);
+            res.send(transactions);
         });
 
         app.get('/getTransactionsFromThis', async (req, res) => {
-            let account = await this.db.getContractsFromThis(req.query.address).catch(x => null);
-            res.send(account);
+            let transactions = await this.db.getContractsFromThis(req.query.address).catch(x => null);
+            res.send(transactions);
         });
+
+        app.get('/getTokens', async (req, res) => {
+            let tokens = await this.db.getTokens().catch(x => null);
+            res.send(tokens);
+        });
+
 
         app.listen(config.port);
     }
