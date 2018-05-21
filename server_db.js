@@ -22,24 +22,10 @@ module.exports = class {
                     throw err;
                 }
 
-                this.client = client;
                 this.db = client.db(config.mongo.db);
 
                 console.log('connected to db');
                 resolve();
-            });
-        });
-    }
-
-    query(queryStr,params=[]){
-        return new Promise((resolve, reject)=>{
-            this.pool.query(queryStr, params, function (error, results, fields) {
-                if (error){
-                    console.log(error);
-                    reject(error);
-                }else{
-                    resolve(results, fields);
-                }
             });
         });
     }
