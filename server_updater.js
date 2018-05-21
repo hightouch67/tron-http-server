@@ -428,7 +428,7 @@ module.exports = class{
             addresses.splice(addresses.indexOf(account.address), 1);
         }
 
-        //console.log(`${addresses.length} accounts were previously unknown`);
+        console.log(`${addresses.length} accounts were previously unknown`);
         for(let a in addresses){
             let address = addresses[a];
             let account = this.getNewDbAccount(address);
@@ -508,11 +508,12 @@ module.exports = class{
         let nowBlockHeader = nowBlock.getBlockHeader().toObject();
         let nowBlockId = nowBlockHeader.rawData.number;
 
-        if (lastDbBlock.length == 0){
+
+        if (typeof lastDbBlock === 'undefined'){
             //no blocks in the database
             await this.loadBlocksBetween(0, nowBlockId)
         }else{
-            lastDbBlock = lastDbBlock[0];
+            lastDbBlock = lastDbBlock;
             let lastValidBlockId = await this.cleanForkedDbBlocks(lastDbBlock);
             let nextBlockId = lastValidBlockId + 1;
             if(nextBlockId < nowBlockId){

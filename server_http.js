@@ -88,19 +88,19 @@ module.exports = class{
          * ***************** GRPC ********************
          ********************************************/
 
-        app.get('grpc/getLastBlock', async (req, res) => {
+        app.get('/grpc/getLastBlock', async (req, res) => {
             let blockProto = await rpc.getNowBlock();
             let serializedBase64 = tools.utils.base64EncodeToString(blockProto.serializeBinary());
             res.send(serializedBase64);
         });
 
-        app.get('grpc/listWitnesses', async (req, res) => {
+        app.get('/grpc/listWitnesses', async (req, res) => {
             let witnessesProto = await rpc.listWitnesses();
             let serializedBase64 = tools.utils.base64EncodeToString(witnessesProto.serializeBinary());
             res.send(serializedBase64);
         });
 
-        app.get('grpc/getAccount', async (req, res) => {
+        app.get('/grpc/getAccount', async (req, res) => {
             let accountRaw = await rpc.getAccount(req.query.address);
             let serializedBase64 = tools.utils.base64EncodeToString(accountRaw.serializeBinary());
             res.send(serializedBase64);
@@ -127,6 +127,26 @@ module.exports = class{
         /*********************************************
          ************ API USING OUR DB ***************
          ********************************************/
+
+        app.get('/getLastBlock', async (req, res) => {
+            let lastBlock = await this.db.getLastBlock().catch(x => null);
+            res.send(lastBlock);
+        });
+
+        app.get('/getAccount', async (req, res) => {
+            let account = await this.db.getAccount(req.query.address).catch(x => null);
+            res.send(account);
+        });
+
+        app.get('/getTransactionsToThis', async (req, res) => {
+            let account = await this.db.getContractsToThis(req.query.address).catch(x => null);
+            res.send(account);
+        });
+
+        app.get('/getTransactionsFromThis', async (req, res) => {
+            let account = await this.db.getContractsFromThis(req.query.address).catch(x => null);
+            res.send(account);
+        });
 
         app.listen(config.port);
     }

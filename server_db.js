@@ -45,7 +45,9 @@ module.exports = class {
     }
 
     async getLastBlock(){
-        return await this.db.collection('blocks').find().sort({block_id:-1}).limit(1).toArray();
+        let lastBlock = await this.db.collection('blocks').find({}, {_id:false}).sort({block_id:-1}).limit(1).toArray();
+        lastBlock = lastBlock[0];
+        return lastBlock;
     }
 
     async getBlockByNum(num){
@@ -71,8 +73,19 @@ module.exports = class {
     }
 
     async getAccounts(addresses){
-        //console.log(addresses);
         return await this.db.collection('accounts').find({address : {$in: addresses}}).toArray();
+    }
+
+    async getAccount(address){
+        return await this.db.collection('accounts').find({address : {$eq: address}}).toArray().then(x => x[0]);
+    }
+
+    async getContractsToThis(address){
+        return await this.db.collection('contracts').find({to_address: {$eq: address}}).toArray();
+    }
+
+    async getContractsFromThis(address){
+        return await this.db.collection('contracts').find({owner_address: {$eq: address}}).toArray();
     }
 
     /*helper function that clones an object*/
