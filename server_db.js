@@ -75,7 +75,18 @@ module.exports = class {
         return await this.db.collection('accounts').find({address : {$in: addresses}}).toArray();
     }
 
-    async insertAccount(account){
+    /*helper function that clones an object*/
+    clone(obj) {
+        if (null == obj || "object" != typeof obj) return obj;
+        var copy = obj.constructor();
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+        }
+        return copy;
+    }
+
+    async insertAccount(a){
+        let account = this.clone(a);
         let address = account.address;
         delete account.address;
         await this.db.collection('accounts').update(

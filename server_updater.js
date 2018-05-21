@@ -271,6 +271,7 @@ module.exports = class{
     }
 
     getNewDbAccount(address){
+        console.log(`!!!!!!newDbAccount ${address}`);
         return {
             address : address,
             trx : 0,
@@ -314,14 +315,14 @@ module.exports = class{
                 case ContractType.TRANSFERCONTRACT:
                     {
                         let amount = new Decimal(contract.amount);
+                        let trx = new Decimal(account.trx);
 
                         if(contract.owner_address == account.address){
-                            account.trx = new Decimal(account.trx).minus(amount).toString();
+                            account.trx = trx.minus(amount).toString();
                         }
                         if(contract.to_address == account.address){
-                            account.trx = new Decimal(account.trx).plus(amount).toString();
+                            account.trx = trx.plus(amount).toString();
                         }
-
                     }
                     break;
                 case ContractType.TRANSFERASSETCONTRACT:
@@ -422,8 +423,8 @@ module.exports = class{
 
         for(let a in accounts){
             let account = accounts[a];
-
             await this.updateDbAccount(account, addressContractLinks[account.address]);
+            let index = addresses.indexOf(account.address);
             addresses.splice(addresses.indexOf(account.address), 1);
         }
 
