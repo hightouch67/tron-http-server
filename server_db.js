@@ -1,5 +1,6 @@
 const MongoClient = require('mongodb').MongoClient;
 const f = require('util').format;
+const util = require('./util.js');
 
 module.exports = class {
 
@@ -74,18 +75,8 @@ module.exports = class {
         return await this.db.collection('contracts').find({owner_address: {$eq: address}}).toArray();
     }
 
-    /*helper function that clones an object*/
-    clone(obj) {
-        if (null == obj || "object" != typeof obj) return obj;
-        var copy = obj.constructor();
-        for (var attr in obj) {
-            if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
-        }
-        return copy;
-    }
-
     async insertAccount(a){
-        let account = this.clone(a);
+        let account = util.cloneObject(a);
         let address = account.address;
         delete account.address;
         await this.db.collection('accounts').update(
