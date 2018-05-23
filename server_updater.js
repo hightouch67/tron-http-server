@@ -2,7 +2,7 @@ const RpcClient = require("./rpcclient");
 const {Decimal} = require('decimal.js');
 const tools = require("tron-http-tools");
 
-const {WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
+const {UnfreezeBalanceContract, WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
 const {Transaction} = require("@tronprotocol/wallet-api/src/protocol/core/Tron_pb");
 
 const {getBase58CheckAddress}= require('@tronprotocol/wallet-api/src/utils/crypto');
@@ -238,7 +238,20 @@ module.exports = class{
                                 });
                             }
                                 break;
-
+                            
+                            case ContractType.UNFREEZEBALANCECONTRACT:
+                            {
+                                let contr = FreezeBalanceContract.deserializeBinary(Uint8Array.from(value));
+                                let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
+                                
+                                newContracts.push({
+                                    block_id : i,
+                                    contract_type : type,
+                                    contract_desc : desc,
+                                    owner_address : ownerAddress
+                                });
+                            }
+                                break;
                             case ContractType.WITHDRAWBALANCECONTRACT:
                             {
                                 let contr = WithdrawBalanceContract.deserializeBinary(Uint8Array.from(value));
@@ -251,7 +264,7 @@ module.exports = class{
                                     owner_address : ownerAddress
                                 });
                             }
-                            break;
+                                break;
                             default:
                                 throw `contract type ${type} not implemented`;
                         }
