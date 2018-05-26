@@ -143,7 +143,7 @@ module.exports = class{
         });
 
         app.get('/getAccountByName', async (req, res) => {
-            let account = await this.db.getAccount(req.query.name).catch(x => null);
+            let account = await this.db.getAccountByName(req.query.name).catch(x => null);
             if(account == null)
                 res.status(404);
             res.send(account);
@@ -153,8 +153,7 @@ module.exports = class{
             let addresses = req.query.addresses.split(",");
             let accounts = {};
             for(let i = 0;i<addresses.length;i++){
-                let account = await this.db.getAccount(addresses[i]).catch(x => null);
-                accounts[addresses[i]] = account;
+                accounts[addresses[i]] = await this.db.getAccount(addresses[i]).catch(x => null);
             }
             res.send(accounts);
         });
