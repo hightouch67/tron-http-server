@@ -2,7 +2,7 @@ const RpcClient = require("./rpcclient");
 const {Decimal} = require('decimal.js');
 const tools = require("tron-http-tools");
 
-const {UnfreezeBalanceContract, WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
+const {VoteAssetContract, UnfreezeBalanceContract, WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
 const {Transaction} = require("@tronprotocol/wallet-api/src/protocol/core/Tron_pb");
 
 const {getBase58CheckAddress}= require('@tronprotocol/wallet-api/src/utils/crypto');
@@ -123,6 +123,7 @@ module.exports = class{
                                 });
                             }
                                 break;
+
                             case ContractType.VOTEWITNESSCONTRACT://4
                             {
                                 let contr = VoteWitnessContract.deserializeBinary(Uint8Array.from(value));
@@ -178,7 +179,8 @@ module.exports = class{
                                 });
                             }
                                 break;
-                            case ContractType.WITNESSUPDATECONTRACT: {
+                            case ContractType.WITNESSUPDATECONTRACT: //8
+                            {
                                 let contr = WitnessUpdateContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
 
@@ -209,7 +211,7 @@ module.exports = class{
                                 });
                             }
                                 break;
-                            case ContractType.ACCOUNTUPDATECONTRACT: {
+                            case ContractType.ACCOUNTUPDATECONTRACT: { //10
                                 let contr = AccountUpdateContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
                                 let accountName = String.fromCharCode.apply(null, contr.getAccountName());
@@ -241,9 +243,9 @@ module.exports = class{
                             }
                                 break;
                             
-                            case ContractType.UNFREEZEBALANCECONTRACT:
+                            case ContractType.UNFREEZEBALANCECONTRACT: //12
                             {
-                                let contr = FreezeBalanceContract.deserializeBinary(Uint8Array.from(value));
+                                let contr = UnfreezeBalanceContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
                                 
                                 newContracts.push({
@@ -254,7 +256,7 @@ module.exports = class{
                                 });
                             }
                                 break;
-                            case ContractType.WITHDRAWBALANCECONTRACT:
+                            case ContractType.WITHDRAWBALANCECONTRACT: //13
                             {
                                 let contr = WithdrawBalanceContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
@@ -268,6 +270,7 @@ module.exports = class{
                             }
                                 break;
                             default:
+                                console.log(value.toObject());
                                 throw `contract type ${type} not implemented`;
                         }
                     }
