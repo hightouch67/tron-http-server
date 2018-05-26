@@ -524,13 +524,19 @@ module.exports = class{
 
         if (typeof lastDbBlock === 'undefined'){
             //no blocks in the database
-            await this.loadBlocksBetween(0, nowBlockId)
+            await this.loadBlocksBetween(0, nowBlockId).catch((e)=>{
+               console.log(e);
+               console.log("crash on position 1");
+            });
         }else{
             lastDbBlock = lastDbBlock;
             let lastValidBlockId = await this.cleanForkedDbBlocks(lastDbBlock);
             let nextBlockId = lastValidBlockId + 1;
             if(nextBlockId < nowBlockId){
-                await this.loadBlocksBetween(nextBlockId, nowBlockId);
+                await this.loadBlocksBetween(nextBlockId, nowBlockId).catch((e)=>{
+                    console.log(e);
+                    console.log("crash on position 2");
+                });
             }
             //console.log(lastDbBlock);
         }
