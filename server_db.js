@@ -71,16 +71,20 @@ module.exports = class {
         return await this.db.collection('accounts').find({account_name: {$eq: name}}).toArray().then(x => x[0]);
     }
 
-    async getContractsToThis(address){
-        return await this.db.collection('contracts').find({to_address: {$eq: address}}).toArray();
-    }
-
     async getTokens(address){
         return await this.db.collection('contracts').find({contract_desc: {$eq: "AssetIssueContract"}}).toArray();
     }
 
     async getContractsFromThis(address){
         return await this.db.collection('contracts').find({owner_address: {$eq: address}}).toArray();
+    }
+
+    async getContractsToThis(address){
+        return await this.db.collection('contracts').find({to_address: {$eq: address}}).toArray();
+    }
+
+    async getContractsRelatedToThis(address){
+        return await this.db.collection('contracts').find({$or:[{to_address:{$eq:address}},{owner_address:{$eq:address}}]}).sort({block_id:-1}).toArray();
     }
 
     async insertAccount(a){

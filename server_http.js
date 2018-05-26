@@ -168,6 +168,11 @@ module.exports = class{
             res.send(transactions);
         });
 
+        app.get('/getTransactionsRelatedToThis', async (req, res) => {
+            let transactions = await this.db.getContractsRelatedToThis(req.query.address).catch(x => null);
+            res.send(transactions);
+        });
+
         app.get('/getTokens', async (req, res) => {
             let tokens = await this.db.getTokens().catch(x => null);
             res.send(tokens);
