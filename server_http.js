@@ -142,6 +142,16 @@ module.exports = class{
             res.send(account);
         });
 
+        app.get('/getAccounts', async (req, res) => {
+            let addresses = req.query.addresses.split(",");
+            let accounts = {};
+            for(let i = 0;i<addresses.length;i++){
+                let account = await this.db.getAccount(addresses[i]).catch(x => null);
+                accounts[addresses[i]] = account;
+            }
+            res.send(accounts);
+        });
+
         app.get('/getTransactionsToThis', async (req, res) => {
             let transactions = await this.db.getContractsToThis(req.query.address).catch(x => null);
             res.send(transactions);
