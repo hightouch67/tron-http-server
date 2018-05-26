@@ -144,6 +144,8 @@ module.exports = class{
 
         app.get('/getAccountByName', async (req, res) => {
             let account = await this.db.getAccount(req.query.name).catch(x => null);
+            if(account == null)
+                res.status(404);
             res.send(account);
         });
 
