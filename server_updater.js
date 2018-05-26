@@ -155,7 +155,9 @@ module.exports = class{
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
 
                                 let name = String.fromCharCode.apply(null, contr.getName());
-                                let description = String.fromCharCode.apply(null, contr.getDescription());
+                                let description = null;
+                                if(description = contr.getDescription())
+                                    let description = String.fromCharCode.apply(null, description);
                                 let url = String.fromCharCode.apply(null, contr.getUrl());
 
                                 newContracts.push({
