@@ -157,7 +157,7 @@ module.exports = class{
                                 let name = String.fromCharCode.apply(null, contr.getName());
                                 let description = null;
                                 if(description = contr.getDescription())
-                                    let description = String.fromCharCode.apply(null, description);
+                                    description = String.fromCharCode.apply(null, description);
                                 let url = String.fromCharCode.apply(null, contr.getUrl());
 
                                 newContracts.push({
