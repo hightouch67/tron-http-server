@@ -67,6 +67,10 @@ module.exports = class {
         return await this.db.collection('accounts').find({address : {$eq: address}}).toArray().then(x => x[0]);
     }
 
+    async getAccount(name){
+        return await this.db.collection('accounts').find({account_name: {$eq: name}}).toArray().then(x => x[0]);
+    }
+
     async getContractsToThis(address){
         return await this.db.collection('contracts').find({to_address: {$eq: address}}).toArray();
     }

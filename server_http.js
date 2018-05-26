@@ -142,6 +142,11 @@ module.exports = class{
             res.send(account);
         });
 
+        app.get('/getAccountByName', async (req, res) => {
+            let account = await this.db.getAccount(req.query.name).catch(x => null);
+            res.send(account);
+        });
+
         app.get('/getAccounts', async (req, res) => {
             let addresses = req.query.addresses.split(",");
             let accounts = {};
