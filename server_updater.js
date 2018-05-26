@@ -269,7 +269,7 @@ module.exports = class{
                                 });
                             }
                                 break;
-                            case ContractType.UNFREEZEASSETCONTRACT:
+                            case 14: //unfreezeassetcontract
                             {
                                 let contr = UnfreezeAssetContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
