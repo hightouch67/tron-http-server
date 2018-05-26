@@ -270,8 +270,7 @@ module.exports = class{
                             }
                                 break;
                             default:
-                                console.log(value.toObject());
-                                throw `contract type ${type} not implemented`;
+                                throw `contract type ${type} desc ${desc} not implemented`;
                         }
                     }
                 }
