@@ -271,14 +271,14 @@ module.exports = class{
                                 break;
                             case 14: //unfreezeassetcontract
                             {
-                                let contr = UnfreezeAssetContract.deserializeBinary(Uint8Array.from(value));
-                                let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
+                                //let contr = UnfreezeAssetContract.deserializeBinary(Uint8Array.from(value));
+                                //let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
 
                                 newContracts.push({
                                     block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
-                                    owner_address : ownerAddress
+                                    owner_address : "UNKNOWN_NEEDS_FIXING"
                                 });
                             }
                             break;
