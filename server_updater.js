@@ -500,7 +500,6 @@ module.exports = class{
     }
 
     async cleanForkedDbBlocks(lastDbBlock){
-        console.log('cleanForkedDbBlocks');
         let rpcBlock = await this.getRpcBlockInfoByNum(lastDbBlock.block_id);
         if(rpcBlock !== null &&
             lastDbBlock.block_hash == rpcBlock.blockHash &&
@@ -509,9 +508,7 @@ module.exports = class{
             return lastDbBlock.block_id;
         }
 
-        console.log('a');
         let rpcBlockZero = await this.getRpcBlockInfoByNum(0);
-        console.log('b');
         let dbBlockZero = await this.db.getBlockByNum(0);
 
         if(dbBlockZero.block_hash != rpcBlockZero.blockHash ||
