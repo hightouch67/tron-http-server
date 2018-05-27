@@ -20,6 +20,8 @@ module.exports = class{
 
     async getRpcBlockInfoByNum(id){
         let block = await this.rpc.getBlockByNum(id);
+        if(!block.getBlockHeader())
+            return null;
         let blockHeader = block.getBlockHeader().toObject();
         let blockId = blockHeader.rawData.number;
         let blockHash = tools.utils.uint8ToBase64(tools.blocks.getBlockHash(block));
@@ -498,14 +500,18 @@ module.exports = class{
     }
 
     async cleanForkedDbBlocks(lastDbBlock){
+        console.log('cleanForkedDbBlocks');
         let rpcBlock = await this.getRpcBlockInfoByNum(lastDbBlock.block_id);
-        if(lastDbBlock.block_hash == rpcBlock.blockHash &&
+        if(rpcBlock !== null &&
+            lastDbBlock.block_hash == rpcBlock.blockHash &&
             lastDbBlock.block_parent_hash == rpcBlock.blockParentHash &&
             lastDbBlock.block_id == rpcBlock.blockId){
             return lastDbBlock.block_id;
         }
 
+        console.log('a');
         let rpcBlockZero = await this.getRpcBlockInfoByNum(0);
+        console.log('b');
         let dbBlockZero = await this.db.getBlockByNum(0);
 
         if(dbBlockZero.block_hash != rpcBlockZero.blockHash ||
@@ -546,7 +552,6 @@ module.exports = class{
                console.log("crash on position 1");
             });
         }else{
-            lastDbBlock = lastDbBlock;
             let lastValidBlockId = await this.cleanForkedDbBlocks(lastDbBlock);
             let nextBlockId = lastValidBlockId + 1;
             if(nextBlockId < nowBlockId){
