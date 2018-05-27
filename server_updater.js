@@ -561,7 +561,7 @@ module.exports = class{
         }
 
         let timeSpent = Date.now() - startTime;
-        let nextMain = 1500 - timeSpent;
+        let nextMain = 100 - timeSpent;
         if(nextMain < 0)
             nextMain = 0;
         setTimeout(()=>{
