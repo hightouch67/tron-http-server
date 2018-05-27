@@ -110,19 +110,19 @@ module.exports = class{
             res.send(serializedBase64);
         });
 
-        app.get('grpc/getTransactionsToThis', async (req, res) => {
+        app.get('/grpc/getTransactionsToThis', async (req, res) => {
             let transactionsRaw = await rpc.getTransactionsToThis(req.query.address);
             let serializedBase64 = tools.utils.base64EncodeToString(transactionsRaw.serializeBinary());
             res.send(serializedBase64);
         });
 
-        app.get('grpc/getTransactionsFromThis', async (req, res) => {
+        app.get('/grpc/getTransactionsFromThis', async (req, res) => {
             let transactionsRaw = await rpc.getTransactionsFromThis(req.query.address);
             let serializedBase64 = tools.utils.base64EncodeToString(transactionsRaw.serializeBinary());
             res.send(serializedBase64);
         });
 
-        app.post('grpc/broadcastTransaction', async (req, res) => {
+        app.post('/grpc/broadcastTransaction', async (req, res) => {
             let responseRaw = await rpc.broadcastBase64EncodedTransaction(req.body.transaction);
             let serializedBase64 = tools.utils.base64EncodeToString(responseRaw.serializeBinary());
             res.send(serializedBase64);
