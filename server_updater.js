@@ -2,8 +2,8 @@ const RpcClient = require("./rpcclient");
 const {Decimal} = require('decimal.js');
 const tools = require("tron-http-tools");
 
-const {UnfreezeAssetContract, VoteAssetContract, UnfreezeBalanceContract, WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("@tronprotocol/wallet-api/src/protocol/core/Contract_pb");
-const {Transaction} = require("@tronprotocol/wallet-api/src/protocol/core/Tron_pb");
+const {UnfreezeAssetContract, VoteAssetContract, UnfreezeBalanceContract, WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("tron-http-tools/protocol/core/Contract_pb");
+const {Transaction} = require("tron-http-tools/protocol/core/Tron_pb");
 
 const {getBase58CheckAddress}= require('@tronprotocol/wallet-api/src/utils/crypto');
 const ContractType = Transaction.Contract.ContractType;

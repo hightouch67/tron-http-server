@@ -1,9 +1,9 @@
 const caller = require("grpc-caller");
 const tools = require("tron-http-tools");
 
-const {EmptyMessage, NumberMessage} = require("@tronprotocol/wallet-api/src/protocol/api/api_pb");
-const {WalletClient, WalletSolidityClient} = require("@tronprotocol/wallet-api/src/protocol/api/api_grpc_pb");
-const {Account, Block, Transaction} = require("@tronprotocol/wallet-api/src/protocol/core/Tron_pb");
+const {EmptyMessage, NumberMessage} = require("tron-http-tools//protocol/api/api_pb");
+const {WalletClient, WalletSolidityClient} = require("tron-http-tools/protocol/api/api_grpc_pb");
+const {Account, Block, Transaction} = require("tron-http-tools/protocol/core/Tron_pb");
 
 module.exports = class{
 
