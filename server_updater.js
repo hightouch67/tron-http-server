@@ -174,7 +174,6 @@ module.exports = class{
                                     num : contr.getNum(),
                                     start_time : contr.getStartTime(),
                                     end_time : contr.getEndTime(),
-                                    decay_ratio : contr.getDecayRatio(),
                                     vote_score : contr.getVoteScore(),
                                     description : description,
                                     url : url
