@@ -12,6 +12,7 @@ module.exports = class{
 
         let rpc = new RpcClient(config);
         let app = express();
+        this.rpc = rpc;
         app.use(bodyParser.urlencoded({extended: true}));
 
         app.get('/', async (req, res) => {
@@ -138,29 +139,7 @@ module.exports = class{
         });
 
         app.get('/getAccount', async (req, res) => {
-            let account = await this.db.getAccount(req.query.address).catch(x => null);
-
-            if(account !== null){
-                let accountRaw = await rpc.getAccount(req.query.address);
-                let accountNet = await rpc.getAccountNet(req.query.address);
-                accountRaw = accountRaw.toObject();
-                accountNet = accountNet.toObject();
-
-                /*use node info for now*/
-                account.tokens = {};
-                for(let i = 0;i<accountRaw.assetMap.length;i++){
-                    account.tokens[accountRaw.assetMap[i][0]] = accountRaw.assetMap[i][1];
-                }
-                account.trx = accountRaw.balance;
-                account.frozen_balance= 0;
-                account.frozen_expire_time = 0;
-                if(accountRaw.frozenList.length > 0){
-                    account.frozen_balance= accountRaw.frozenList[0].frozenBalance;
-                    account.frozen_expire_time= accountRaw.frozenList[0].expireTime;
-                }
-                account.net = accountNet;
-            }
-
+            let account = await this.getFullAccount(req.query.address);
             res.send(account);
         });
 
@@ -175,7 +154,7 @@ module.exports = class{
             let addresses = req.query.addresses.split(",");
             let accounts = {};
             for(let i = 0;i<addresses.length;i++){
-                accounts[addresses[i]] = await this.db.getAccount(addresses[i]).catch(x => null);
+                accounts[addresses[i]] = await this.getFullAccount(addresses[i]);
             }
             res.send(accounts);
         });
@@ -202,6 +181,32 @@ module.exports = class{
 
 
         app.listen(config.port);
+    }
+
+    async getFullAccount(address){
+        let account = await this.db.getAccount(address).catch(x => null);
+
+        if(account !== null){
+            let accountRaw = await this.rpc.getAccount(address);
+            let accountNet = await this.rpc.getAccountNet(address);
+            accountRaw = accountRaw.toObject();
+            accountNet = accountNet.toObject();
+
+            /*use node info for now*/
+            account.tokens = {};
+            for(let i = 0;i<accountRaw.assetMap.length;i++){
+                account.tokens[accountRaw.assetMap[i][0]] = accountRaw.assetMap[i][1];
+            }
+            account.trx = accountRaw.balance;
+            account.frozen_balance= 0;
+            account.frozen_expire_time = 0;
+            if(accountRaw.frozenList.length > 0){
+                account.frozen_balance= accountRaw.frozenList[0].frozenBalance;
+                account.frozen_expire_time= accountRaw.frozenList[0].expireTime;
+            }
+            account.net = accountNet;
+        }
+        return account;
     }
 
 }
