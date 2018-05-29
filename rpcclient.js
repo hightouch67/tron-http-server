@@ -32,6 +32,12 @@ module.exports = class{
         return await this.api_full.getAccount(account);
     }
 
+    async getAccountNet(address){
+        let account = new Account();
+        account.setAddress(tools.utils.base58AddressToUint8Array(address));
+        return await this.api_full.getAccountNet(account);
+    }
+
     async getTransactionsToThis(address){
         let account = new Account();
         account.setAddress(tools.utils.base58AddressToUint8Array(address));

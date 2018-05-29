@@ -139,6 +139,28 @@ module.exports = class{
 
         app.get('/getAccount', async (req, res) => {
             let account = await this.db.getAccount(req.query.address).catch(x => null);
+
+            if(account !== null){
+                let accountRaw = await rpc.getAccount(req.query.address);
+                let accountNet = await rpc.getAccountNet(req.query.address);
+                accountRaw = accountRaw.toObject();
+                accountNet = accountNet.toObject();
+
+                /*use node info for now*/
+                account.tokens = {};
+                for(let i = 0;i<accountRaw.assetMap.length;i++){
+                    account.tokens[accountRaw.assetMap[i][0]] = accountRaw.assetMap[i][1];
+                }
+                account.trx = accountRaw.balance;
+                account.frozen_balance= 0;
+                account.frozen_expire_time = 0;
+                if(accountRaw.frozenList.length > 0){
+                    account.frozen_balance= accountRaw.frozenList[0].frozenBalance;
+                    account.frozen_expire_time= accountRaw.frozenList[0].expireTime;
+                }
+                account.net = accountNet;
+            }
+
             res.send(account);
         });
 
