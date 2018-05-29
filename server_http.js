@@ -9,11 +9,17 @@ module.exports = class{
         this.db = db;
 
         console.log(`Starting http server on port ${config.port}`);
+        let dd_options = {
+            'response_code':true,
+            'tags': ['app:tron-http-server']
+        };
+        let connect_datadog = require('connect-datadog')(dd_options);
 
         let rpc = new RpcClient(config);
         let app = express();
         this.rpc = rpc;
         app.use(bodyParser.urlencoded({extended: true}));
+        app.use(connect_datadog);
 
         app.get('/', async (req, res) => {
             res.set({'Content-Type': 'application/json; charset=utf-8'});
@@ -205,10 +211,6 @@ module.exports = class{
                 account.frozen_expire_time= accountRaw.frozenList[0].expireTime;
             }
             account.net = accountNet;
-
-            console.log(accountRaw);
-            console.log(accountNet);
-
         }
         return account;
     }
