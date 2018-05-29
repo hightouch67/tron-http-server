@@ -186,7 +186,7 @@ module.exports = class{
     async getFullAccount(address){
         let account = await this.db.getAccount(address).catch(x => null);
 
-        if(account !== null){
+        if(account){
             let accountRaw = await this.rpc.getAccount(address);
             let accountNet = await this.rpc.getAccountNet(address);
             accountRaw = accountRaw.toObject();
@@ -205,6 +205,10 @@ module.exports = class{
                 account.frozen_expire_time= accountRaw.frozenList[0].expireTime;
             }
             account.net = accountNet;
+
+            console.log(accountRaw);
+            console.log(accountNet);
+
         }
         return account;
     }
