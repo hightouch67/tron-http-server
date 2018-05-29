@@ -477,6 +477,12 @@ module.exports = class{
             let rpcBlock = await this.getRpcBlockInfoByNum(current);
             let dbBlock = await this.db.getBlockByNum(current);
 
+            if(!rpcBlock){
+                console.log('rpc block didnt return sensible value');
+                console.log(rpcBlock);
+                return current -1;
+            }
+
             if(dbBlock.block_hash == rpcBlock.blockHash ||
                 dbBlock.block_parent_hash == rpcBlock.blockParentHash){
                 //non-forked block detected
