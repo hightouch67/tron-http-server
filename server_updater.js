@@ -15,9 +15,10 @@ function buf2hex(buffer) { // buffer is an ArrayBuffer
 
 module.exports = class{
 
-    constructor(config, db){
+    constructor(config, db, alertCallbacks=null){
         this.db = db;
         this.rpc = new RpcClient(config);
+        this.alertCallbacks = alertCallbacks;
 
         this.main();
     }
@@ -375,7 +376,6 @@ module.exports = class{
     }
 
     getNewDbAccount(address){
-        console.log(`!!!!!!newDbAccount ${address}`);
         return {
             address : address,
             trx : 0,
@@ -523,6 +523,7 @@ module.exports = class{
         }
 
         let addresses = Object.keys(addressContractLinks);
+        let backupAddresses = addresses.slice();
         let accounts = await this.db.getAccounts(addresses);
 
         for(let a in accounts){
@@ -538,6 +539,10 @@ module.exports = class{
             let address = addresses[a];
             let account = this.getNewDbAccount(address);
             await this.updateDbAccount(account, addressContractLinks[address]);
+        }
+
+        if(this.alertCallbacks !== null){
+            this.alertCallbacks(backupAddresses);
         }
     }
 
