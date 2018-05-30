@@ -58,7 +58,7 @@ module.exports = class{
 
             if(transactionsList.length > 0){
                 for(let j = 0;j<transactionsList.length;j++){
-                    let transaction = transactionsList[j].toObject();
+                    let transaction = transactionsList[j];
                     let timestamp = transaction.getRawData().getTimestamp();
 
                     let contracts = transactionsList[j].getRawData().getContractList();
