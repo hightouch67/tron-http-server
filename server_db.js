@@ -71,8 +71,22 @@ module.exports = class {
         return await this.db.collection('accounts').find({account_name: {$eq: name}}).toArray().then(x => x[0]);
     }
 
-    async getTokens(address){
-        return await this.db.collection('contracts').find({contract_desc: {$eq: "AssetIssueContract"}}).toArray();
+    async getTokens(keepBuys = false){
+        let contracts = await this.db.collection('contracts').find({contract_desc: {$eq: "AssetIssueContract"}}).toArray();
+        for (let i = 0; i < contracts.length; i++) {
+            contracts[i].buys = await this.db.collection('contracts').find({
+                asset_name: {$eq: contracts[i].name},
+                contract_desc: {$eq: "ParticipateAssetIssueContract"}
+            }).toArray();
+
+            contracts[i].bought = 0;
+            for (let j = 0; j < contracts[i].buys.length; j++) {
+                contracts[i].bought += parseInt(contracts[i].buys[j].amount);
+            }
+            if(!keepBuys)
+                delete contracts[i].buys;
+        }
+        return contracts;
     }
 
     async getContractsFromThis(address){

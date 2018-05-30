@@ -2,7 +2,7 @@ const RpcClient = require("./rpcclient");
 const {Decimal} = require('decimal.js');
 const tools = require("tron-http-tools");
 
-const {UnfreezeAssetContract, VoteAssetContract, UnfreezeBalanceContract, WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("tron-http-tools/protocol/core/Contract_pb");
+const {UpdateAssetContract, UnfreezeAssetContract, VoteAssetContract, UnfreezeBalanceContract, WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("tron-http-tools/protocol/core/Contract_pb");
 const {Transaction} = require("tron-http-tools/protocol/core/Tron_pb");
 
 const {getBase58CheckAddress}= require('@tronprotocol/wallet-api/src/utils/crypto');
@@ -168,7 +168,9 @@ module.exports = class{
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
 
                                 let name = String.fromCharCode.apply(null, contr.getName());
-                                let abbr = String.fromCharCode.apply(null, contr.getAbbr());
+                                let abbr = null;
+                                if(abbr = contr.getAbbr())
+                                    abbr = String.fromCharCode.apply(null, abbr);
                                 let description = null;
                                 if(description = contr.getDescription())
                                     description = String.fromCharCode.apply(null, description);
@@ -296,7 +298,22 @@ module.exports = class{
                                 });
                             }
                                 break;
-                            case 14: //unfreezeassetcontract
+                            case ContractType.UPDATEASSETCONTRACT:
+                            {
+                                let contr = UpdateAssetContract.deserializeBinary(Uint8Array.from(value));
+                                let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
+
+                                newContracts.push({
+                                    block_id : i,
+                                    contract_type : type,
+                                    contract_desc : desc,
+                                    owner_address : ownerAddress,
+                                    timestamp : timestamp,
+                                    txsize : txsize
+                                });
+                            }
+                            break;
+                            case ContractType.UNFREEZEASSETCONTRACT: //unfreezeassetcontract
                             {
                                 //let contr = UnfreezeAssetContract.deserializeBinary(Uint8Array.from(value));
                                 //let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
@@ -312,7 +329,15 @@ module.exports = class{
                             }
                             break;
                             default:
-                                throw `contract type ${type} desc ${desc} not implemented`;
+                                console.log(`UNIMPLEMENTED CONTRACT TYPE ${desc}`);
+                                newContracts.push({
+                                    block_id : i,
+                                    contract_type : type,
+                                    contract_desc : desc,
+                                    timestamp : timestamp,
+                                    txsize : txsize,
+                                    unhandled : true
+                                });
                         }
                     }
                 }

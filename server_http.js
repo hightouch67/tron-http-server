@@ -197,7 +197,7 @@ module.exports = class{
         });
 
         app.get('/getTokens', async (req, res) => {
-            let tokens = await this.db.getTokens().catch(x => null);
+            let tokens = await this.db.getTokens(req.query.buys).catch(x => null);
             res.send(tokens);
         });
 
