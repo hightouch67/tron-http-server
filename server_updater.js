@@ -59,7 +59,7 @@ module.exports = class{
             if(transactionsList.length > 0){
                 for(let j = 0;j<transactionsList.length;j++){
                     let transaction = transactionsList[j];
-                    let timestamp = transaction.getRawData().getTimestamp();
+                    let timestamp = parseInt(transaction.getRawData().getTimestamp())/1000000;
 
                     let contracts = transactionsList[j].getRawData().getContractList();
 
