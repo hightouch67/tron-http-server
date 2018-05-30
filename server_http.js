@@ -177,6 +177,22 @@ module.exports = class{
 
         app.get('/getTransactionsRelatedToThis', async (req, res) => {
             let transactions = await this.db.getContractsRelatedToThis(req.query.address).catch(x => null);
+            if(req.query.start){
+                let start = parseInt(req.query.start);
+                for(let i = transactions.length-1;i>=0;i--){
+                    if(parseInt(transactions[i].timestamp) < start){
+                        transactions.splice(i,1);
+                    }
+
+                }
+            }
+            if(req.query.end){
+                let end = parseInt(req.query.end);
+                for(let i = transactions.length-1;i>=0;i--){
+                    if(transactions[i].timestamp > end)
+                        transactions.splice(i,1);
+                }
+            }
             res.send(transactions);
         });
 
