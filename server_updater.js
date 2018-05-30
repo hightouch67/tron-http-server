@@ -60,6 +60,7 @@ module.exports = class{
                 for(let j = 0;j<transactionsList.length;j++){
                     let transaction = transactionsList[j];
                     let timestamp = parseInt(transaction.getRawData().getTimestamp())/1000000;
+                    let txsize = transaction.serializeBinary().length;
 
                     let contracts = transactionsList[j].getRawData().getContractList();
 
@@ -104,7 +105,8 @@ module.exports = class{
                                     owner_address : ownerAddress,
                                     to_address : toAddress,
                                     amount : amount,
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                                 break;
@@ -124,7 +126,8 @@ module.exports = class{
                                     to_address : toAddress,
                                     asset_name : assetName,
                                     amount : amount,
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                                 break;
@@ -139,7 +142,8 @@ module.exports = class{
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                                 break;
@@ -153,7 +157,8 @@ module.exports = class{
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                                 break;
@@ -163,6 +168,7 @@ module.exports = class{
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
 
                                 let name = String.fromCharCode.apply(null, contr.getName());
+                                let abbr = String.fromCharCode.apply(null, contr.getAbbr());
                                 let description = null;
                                 if(description = contr.getDescription())
                                     description = String.fromCharCode.apply(null, description);
@@ -174,6 +180,7 @@ module.exports = class{
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
                                     name : name,
+                                    abbr : abbr,
                                     total_supply : contr.getTotalSupply(),
                                     trx_num : contr.getTrxNum(),
                                     num : contr.getNum(),
@@ -182,7 +189,8 @@ module.exports = class{
                                     vote_score : contr.getVoteScore(),
                                     description : description,
                                     url : url,
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                                 break;
@@ -196,7 +204,8 @@ module.exports = class{
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                                 break;
@@ -216,7 +225,8 @@ module.exports = class{
                                     to_address : toAddress,
                                     asset_name : assetName,
                                     amount : amount,
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                                 break;
@@ -231,7 +241,8 @@ module.exports = class{
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
                                     account_name : accountName,
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                                 break;
@@ -249,7 +260,8 @@ module.exports = class{
                                     owner_address : ownerAddress,
                                     frozen_balance : frozenBalance,
                                     frozen_duration : frozenDuration,
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                                 break;
@@ -264,7 +276,8 @@ module.exports = class{
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                                 break;
@@ -278,7 +291,8 @@ module.exports = class{
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                                 break;
@@ -292,7 +306,8 @@ module.exports = class{
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : "UNKNOWN_NEEDS_FIXING",
-                                    timestamp : timestamp
+                                    timestamp : timestamp,
+                                    txsize : txsize
                                 });
                             }
                             break;
