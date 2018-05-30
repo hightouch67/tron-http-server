@@ -100,37 +100,37 @@ module.exports = class{
          ********************************************/
 
         app.get('/grpc/getLastBlock', async (req, res) => {
-            let blockProto = await rpc.getNowBlock();
+            let blockProto = await rpc.getNowBlock().catch(x => null);
             let serializedBase64 = tools.utils.base64EncodeToString(blockProto.serializeBinary());
             res.send(serializedBase64);
         });
 
         app.get('/grpc/listWitnesses', async (req, res) => {
-            let witnessesProto = await rpc.listWitnesses();
+            let witnessesProto = await rpc.listWitnesses().catch(x => null);
             let serializedBase64 = tools.utils.base64EncodeToString(witnessesProto.serializeBinary());
             res.send(serializedBase64);
         });
 
         app.get('/grpc/getAccount', async (req, res) => {
-            let accountRaw = await rpc.getAccount(req.query.address);
+            let accountRaw = await rpc.getAccount(req.query.address).catch(x => null);
             let serializedBase64 = tools.utils.base64EncodeToString(accountRaw.serializeBinary());
             res.send(serializedBase64);
         });
 
         app.get('/grpc/getTransactionsToThis', async (req, res) => {
-            let transactionsRaw = await rpc.getTransactionsToThis(req.query.address);
+            let transactionsRaw = await rpc.getTransactionsToThis(req.query.address).catch(x => null);
             let serializedBase64 = tools.utils.base64EncodeToString(transactionsRaw.serializeBinary());
             res.send(serializedBase64);
         });
 
         app.get('/grpc/getTransactionsFromThis', async (req, res) => {
-            let transactionsRaw = await rpc.getTransactionsFromThis(req.query.address);
+            let transactionsRaw = await rpc.getTransactionsFromThis(req.query.address).catch(x => null);
             let serializedBase64 = tools.utils.base64EncodeToString(transactionsRaw.serializeBinary());
             res.send(serializedBase64);
         });
 
         app.post('/grpc/broadcastTransaction', async (req, res) => {
-            let responseRaw = await rpc.broadcastBase64EncodedTransaction(req.body.transaction);
+            let responseRaw = await rpc.broadcastBase64EncodedTransaction(req.body.transaction).catch(x => null);
             let serializedBase64 = tools.utils.base64EncodeToString(responseRaw.serializeBinary());
             res.send(serializedBase64);
         });
@@ -145,7 +145,7 @@ module.exports = class{
         });
 
         app.get('/getAccount', async (req, res) => {
-            let account = await this.getFullAccount(req.query.address);
+            let account = await this.getFullAccount(req.query.address).catch(x => null);
             res.send(account);
         });
 
@@ -160,7 +160,7 @@ module.exports = class{
             let addresses = req.query.addresses.split(",");
             let accounts = {};
             for(let i = 0;i<addresses.length;i++){
-                accounts[addresses[i]] = await this.getFullAccount(addresses[i]);
+                accounts[addresses[i]] = await this.getFullAccount(addresses[i]).catch(x => null);
             }
             res.send(accounts);
         });

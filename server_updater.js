@@ -59,6 +59,7 @@ module.exports = class{
             if(transactionsList.length > 0){
                 for(let j = 0;j<transactionsList.length;j++){
                     let transaction = transactionsList[j].toObject();
+                    let timestamp = transaction.getRawData().getTimestamp();
 
                     let contracts = transactionsList[j].getRawData().getContractList();
 
@@ -102,7 +103,8 @@ module.exports = class{
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
                                     to_address : toAddress,
-                                    amount : amount
+                                    amount : amount,
+                                    timestamp : timestamp
                                 });
                             }
                                 break;
@@ -121,7 +123,8 @@ module.exports = class{
                                     owner_address : ownerAddress,
                                     to_address : toAddress,
                                     asset_name : assetName,
-                                    amount : amount
+                                    amount : amount,
+                                    timestamp : timestamp
                                 });
                             }
                                 break;
@@ -135,7 +138,8 @@ module.exports = class{
                                     block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
-                                    owner_address : ownerAddress
+                                    owner_address : ownerAddress,
+                                    timestamp : timestamp
                                 });
                             }
                                 break;
@@ -148,7 +152,8 @@ module.exports = class{
                                     block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
-                                    owner_address : ownerAddress
+                                    owner_address : ownerAddress,
+                                    timestamp : timestamp
                                 });
                             }
                                 break;
@@ -176,7 +181,8 @@ module.exports = class{
                                     end_time : contr.getEndTime(),
                                     vote_score : contr.getVoteScore(),
                                     description : description,
-                                    url : url
+                                    url : url,
+                                    timestamp : timestamp
                                 });
                             }
                                 break;
@@ -189,7 +195,8 @@ module.exports = class{
                                     block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
-                                    owner_address : ownerAddress
+                                    owner_address : ownerAddress,
+                                    timestamp : timestamp
                                 });
                             }
                                 break;
@@ -208,7 +215,8 @@ module.exports = class{
                                     owner_address : ownerAddress,
                                     to_address : toAddress,
                                     asset_name : assetName,
-                                    amount : amount
+                                    amount : amount,
+                                    timestamp : timestamp
                                 });
                             }
                                 break;
@@ -222,7 +230,8 @@ module.exports = class{
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
-                                    account_name : accountName
+                                    account_name : accountName,
+                                    timestamp : timestamp
                                 });
                             }
                                 break;
@@ -239,7 +248,8 @@ module.exports = class{
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
                                     frozen_balance : frozenBalance,
-                                    frozen_duration : frozenDuration
+                                    frozen_duration : frozenDuration,
+                                    timestamp : timestamp
                                 });
                             }
                                 break;
@@ -253,7 +263,8 @@ module.exports = class{
                                     block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
-                                    owner_address : ownerAddress
+                                    owner_address : ownerAddress,
+                                    timestamp : timestamp
                                 });
                             }
                                 break;
@@ -266,7 +277,8 @@ module.exports = class{
                                     block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
-                                    owner_address : ownerAddress
+                                    owner_address : ownerAddress,
+                                    timestamp : timestamp
                                 });
                             }
                                 break;
@@ -279,7 +291,8 @@ module.exports = class{
                                     block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
-                                    owner_address : "UNKNOWN_NEEDS_FIXING"
+                                    owner_address : "UNKNOWN_NEEDS_FIXING",
+                                    timestamp : timestamp
                                 });
                             }
                             break;
