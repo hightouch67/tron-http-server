@@ -5,9 +5,13 @@ const tools = require("tron-http-tools");
 const {UpdateAssetContract, UnfreezeAssetContract, VoteAssetContract, UnfreezeBalanceContract, WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("tron-http-tools/protocol/core/Contract_pb");
 const {Transaction} = require("tron-http-tools/protocol/core/Tron_pb");
 
-const {getBase58CheckAddress}= require('@tronprotocol/wallet-api/src/utils/crypto');
+const {getBase58CheckAddress, SHA256}= require('@tronprotocol/wallet-api/src/utils/crypto');
 const ContractType = Transaction.Contract.ContractType;
 
+
+function buf2hex(buffer) { // buffer is an ArrayBuffer
+    return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
+}
 
 module.exports = class{
 
@@ -60,7 +64,9 @@ module.exports = class{
                 for(let j = 0;j<transactionsList.length;j++){
                     let transaction = transactionsList[j];
                     let timestamp = parseInt(transaction.getRawData().getTimestamp())/1000000;
-                    let txsize = transaction.serializeBinary().length;
+                    let serialized = transaction.serializeBinary();
+                    let hash = buf2hex(SHA256(serialized));
+                    let txsize = serialized.length;
 
                     let contracts = transactionsList[j].getRawData().getContractList();
 
@@ -106,7 +112,8 @@ module.exports = class{
                                     to_address : toAddress,
                                     amount : amount,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                                 break;
@@ -127,7 +134,8 @@ module.exports = class{
                                     asset_name : assetName,
                                     amount : amount,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                                 break;
@@ -143,7 +151,8 @@ module.exports = class{
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                                 break;
@@ -158,7 +167,8 @@ module.exports = class{
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                                 break;
@@ -192,7 +202,8 @@ module.exports = class{
                                     description : description,
                                     url : url,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                                 break;
@@ -207,7 +218,8 @@ module.exports = class{
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                                 break;
@@ -228,7 +240,8 @@ module.exports = class{
                                     asset_name : assetName,
                                     amount : amount,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                                 break;
@@ -244,7 +257,8 @@ module.exports = class{
                                     owner_address : ownerAddress,
                                     account_name : accountName,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                                 break;
@@ -263,7 +277,8 @@ module.exports = class{
                                     frozen_balance : frozenBalance,
                                     frozen_duration : frozenDuration,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                                 break;
@@ -279,7 +294,8 @@ module.exports = class{
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                                 break;
@@ -294,7 +310,8 @@ module.exports = class{
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                                 break;
@@ -309,7 +326,8 @@ module.exports = class{
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                             break;
@@ -324,7 +342,8 @@ module.exports = class{
                                     contract_desc : desc,
                                     owner_address : "UNKNOWN_NEEDS_FIXING",
                                     timestamp : timestamp,
-                                    txsize : txsize
+                                    txsize : txsize,
+                                    txhash : hash
                                 });
                             }
                             break;
@@ -335,8 +354,9 @@ module.exports = class{
                                     contract_type : type,
                                     contract_desc : desc,
                                     timestamp : timestamp,
+                                    unhandled : true,
                                     txsize : txsize,
-                                    unhandled : true
+                                    txhash : hash
                                 });
                         }
                     }
@@ -512,7 +532,8 @@ module.exports = class{
             addresses.splice(addresses.indexOf(account.address), 1);
         }
 
-        console.log(`${addresses.length} accounts were previously unknown`);
+        if(addresses.length > 0)
+            console.log(`${addresses.length} accounts were previously unknown`);
         for(let a in addresses){
             let address = addresses[a];
             let account = this.getNewDbAccount(address);
