@@ -3,7 +3,7 @@ const axios = require("axios");
 
 const CMC_API_TRX_ID = 1958; //https://api.coinmarketcap.com/v2/listings/
 const CMC_API_URL = `https://api.coinmarketcap.com/v2/ticker/${CMC_API_TRX_ID}/?convert=USD`;
-const PRICE_UPDATING_INTERVAL = 60000;
+const PRICE_UPDATING_INTERVAL = 3600000;
 
 module.exports = class{
     constructor(config){
