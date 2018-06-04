@@ -10,7 +10,7 @@ async function run(){
 
     const http = new ServerHttp(config, db);
     const ws = new ServerWebsocket(config);
-    const updater = new ServerUpdater(config, db, ws.broadcastAddressAlerts.bind(ws));
+    //const updater = new ServerUpdater(config, db, ws.broadcastAddressAlerts.bind(ws));
 }
 
 run();
