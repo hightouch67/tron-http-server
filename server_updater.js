@@ -170,12 +170,14 @@ module.exports = class{
                             {
                                 let contr = VoteWitnessContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
+                                let url = String.fromCharCode.apply(null, contr.getUrl());
 
                                 newContracts.push({
                                     block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
+                                    url : url,
                                     timestamp : timestamp,
                                     txsize : txsize,
                                     txhash : hash

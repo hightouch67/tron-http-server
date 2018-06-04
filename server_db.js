@@ -123,16 +123,49 @@ module.exports = class {
       return contracts;
     }
 
+    async getWitnessesUrlMap(witnesses){
+      let contracts = await this.db.collection('contracts').find({contract_desc:'WitnessCreateContract', owner_address : {$in : witnesses}}).toArray();
+      let output = {};
+      for(let i = 0;i<contracts.length;i++){
+          output[contracts[i].owner_address] = contracts[i];
+      }
+      return output;
+    }
+
+    async addWitnessUrlToVoteContracts(contracts){
+        let witnesses = {};
+        for(let i = 0;i<contracts.length;i++){
+          if(contracts[i].contract_desc === 'VoteWitnessContract' && contracts[i].votes.length > 0){
+            witnesses[contracts[i].votes[0].vote_address] = 1;
+          }
+        }
+        let keys = Object.keys(witnesses);
+        if(keys.length === 0){
+            return contracts;
+        }else{
+            let witnessesUrlMap = await this.getWitnessesUrlMap(keys);
+            for(let i = 0;i<contracts.length;i++){
+              if(contracts[i].contract_desc === 'VoteWitnessContract' &&
+                contracts[i].votes.length > 0) {
+
+                  let witness = witnessesUrlMap[contracts[i].votes[0].vote_address];
+                  contracts[i].witness = witness;
+              }
+            }
+        }
+        return contracts;
+    }
+
     async getContractsFromThis(address){
-        return await this.addTokenToParticipateContracts(await this.db.collection('contracts').find({owner_address: {$eq: address}}).toArray());
+        return await this.addWitnessUrlToVoteContracts(await this.addTokenToParticipateContracts(await this.db.collection('contracts').find({owner_address: {$eq: address}}).toArray()));
     }
 
     async getContractsToThis(address){
-        return await this.addTokenToParticipateContracts(await this.db.collection('contracts').find({to_address: {$eq: address}}).toArray());
+        return await this.addWitnessUrlToVoteContracts(await this.addTokenToParticipateContracts(await this.db.collection('contracts').find({to_address: {$eq: address}}).toArray()));
     }
 
     async getContractsRelatedToThis(address){
-        return await this.addTokenToParticipateContracts(await this.db.collection('contracts').find({$or:[{to_address:{$eq:address}},{owner_address:{$eq:address}}]}).sort({block_id:-1}).toArray());
+        return await this.addWitnessUrlToVoteContracts(await this.addTokenToParticipateContracts(await this.db.collection('contracts').find({$or:[{to_address:{$eq:address}},{owner_address:{$eq:address}}]}).sort({block_id:-1}).toArray()));
     }
 
     async insertAccount(a){
