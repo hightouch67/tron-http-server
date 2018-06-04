@@ -149,7 +149,7 @@ module.exports = class{
                                 let votes = [];
                                 for(let v = 0;v<votesList.length;v++){
                                     votes.push({
-                                      vote_address : votesList[v].getVoteAddress(),
+                                      vote_address : getBase58CheckAddress(Array.from(votesList[v].getVoteAddress())),
                                       vote_count : votesList[v].getVoteCount()
                                     })
                                 }
