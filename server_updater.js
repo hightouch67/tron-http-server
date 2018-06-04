@@ -145,12 +145,21 @@ module.exports = class{
                             {
                                 let contr = VoteWitnessContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
+                                let votesList = contr.getVotesList();
+                                let votes = [];
+                                for(let v = 0;v<votesList.length;v++){
+                                    votes.push({
+                                      vote_address : votesList[v].getVoteAddress(),
+                                      vote_count : votesList[v].getVoteCount()
+                                    })
+                                }
 
                                 newContracts.push({
                                     block_id : i,
                                     contract_type : type,
                                     contract_desc : desc,
                                     owner_address : ownerAddress,
+                                    votes : votes,
                                     timestamp : timestamp,
                                     txsize : txsize,
                                     txhash : hash
