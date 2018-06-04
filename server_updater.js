@@ -2,7 +2,7 @@ const RpcClient = require("./rpcclient");
 const {Decimal} = require('decimal.js');
 const tools = require("tron-http-tools");
 
-const {UpdateAssetContract, UnfreezeAssetContract, VoteAssetContract, UnfreezeBalanceContract, WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("tron-http-tools/protocol/core/Contract_pb");
+const {WitnessCreateContract, UpdateAssetContract, UnfreezeAssetContract, VoteAssetContract, UnfreezeBalanceContract, WithdrawBalanceContract, WitnessUpdateContract, TransferContract, TransferAssetContract, VoteWitnessContract, AssetIssueContract, FreezeBalanceContract, ParticipateAssetIssueContract, AccountUpdateContract} = require("tron-http-tools/protocol/core/Contract_pb");
 const {Transaction} = require("tron-http-tools/protocol/core/Tron_pb");
 
 const {getBase58CheckAddress, SHA256}= require('tron-http-tools/utils/crypto');
@@ -168,7 +168,7 @@ module.exports = class{
                                 break;
                             case ContractType.WITNESSCREATECONTRACT://5
                             {
-                                let contr = VoteWitnessContract.deserializeBinary(Uint8Array.from(value));
+                                let contr = WitnessCreateContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
                                 let url = String.fromCharCode.apply(null, contr.getUrl());
 
