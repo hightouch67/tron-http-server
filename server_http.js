@@ -3,6 +3,8 @@ const bodyParser = require("body-parser");
 const tools = require("tron-http-tools");
 const RpcClient = require("./rpcclient");
 
+const {getBase58CheckAddress}= require('tron-http-tools/utils/crypto');
+
 module.exports = class{
 
     constructor(config, db){
@@ -162,6 +164,26 @@ module.exports = class{
         /*********************************************
          ************ API USING OUR DB ***************
          ********************************************/
+
+        app.get('/witnesses', async (req, res) => {
+          try{
+            let witnessesProto = await rpc.listWitnesses().catch(x => null);
+            let output = [];
+            let witnesses = witnessesProto.getWitnessesList();
+            for(let i in witnesses){
+              let witness = witnesses[i];
+              let witnessObject = witness.toObject();
+              let ownerAddress = getBase58CheckAddress(Array.from(witness.getAddress()));
+              witnessObject.address = ownerAddress;
+              witnessObject.ownerAccount = await this.getFullAccount(ownerAddress).catch(x => null);
+              output.push(witnessObject);
+            }
+            res.send(output);
+          }catch (e) {
+            console.log(e);
+            res.send(null);
+          }
+        });
 
         app.get('/getLastBlock', async (req, res) => {
             let lastBlock = await this.db.getLastBlock().catch(x => null);
