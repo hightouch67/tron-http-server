@@ -1,7 +1,7 @@
 const caller = require("grpc-caller");
 const tools = require("tron-http-tools");
 
-const {EmptyMessage, NumberMessage} = require("tron-http-tools//protocol/api/api_pb");
+const {EmptyMessage, NumberMessage, BytesMessage} = require("tron-http-tools//protocol/api/api_pb");
 const {WalletClient, WalletSolidityClient} = require("tron-http-tools/protocol/api/api_grpc_pb");
 const {Account, Block, Transaction} = require("tron-http-tools/protocol/core/Tron_pb");
 
@@ -56,6 +56,12 @@ module.exports = class{
 
     async broadcastBase64EncodedTransaction(b64Transaction){
         return await this.broadcastTransaction(tools.transactions.transactionFromBase64(b64Transaction));
+    }
+    
+    async getTransaction(txId){
+        let tx = new BytesMessage;
+        tx.setValue(txId);
+        return await this.api_full.getTransactionById(tx);
     }
 }
 
