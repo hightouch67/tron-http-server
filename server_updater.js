@@ -411,6 +411,8 @@ module.exports = class{
     accountAddTokenBalance(account, assetName, amount){
         if(assetName.indexOf('$') >= 0)
             return account;
+		if(assetName.indexOf('.') >= 0)
+            return account;
         account = this.accountVerifyHasAsset(account, assetName);
         account.tokens[assetName].amount = new Decimal(account.tokens[assetName].amount).add(amount).toString();
         return account;
