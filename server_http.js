@@ -211,16 +211,6 @@ module.exports = class{
             res.send(accounts);
         });
 
-        app.get('/getTransactionsToThis', async (req, res) => {
-            let transactions = await this.db.getContractsToThis(req.query.address).catch(x => null);
-            res.send(transactions);
-        });
-
-        app.get('/getTransactionsFromThis', async (req, res) => {
-            let transactions = await this.db.getContractsFromThis(req.query.address).catch(x => null);
-            res.send(transactions);
-        });
-
         app.get('/getTransactionsRelatedToThis', async (req, res) => {
             let transactions = await this.db.getContractsRelatedToThis(req.query.address).catch(x => null);
             if(req.query.start){
@@ -252,27 +242,36 @@ module.exports = class{
     }
 
     async getFullAccount(address){
-        let account = await this.db.getAccount(address).catch(x => null);
+        //let account = await this.db.getAccount(address).catch(x => null);
 
-        if(account){
-            let accountRaw = await this.rpc.getAccount(address);
-            let accountNet = await this.rpc.getAccountNet(address);
-            accountRaw = accountRaw.toObject();
-            accountNet = accountNet.toObject();
+        let account = {
+            address
+        };
 
-            /*use node info for now*/
-            account.tokens = {};
-            for(let i = 0;i<accountRaw.assetMap.length;i++){
-                account.tokens[accountRaw.assetMap[i][0]] = accountRaw.assetMap[i][1];
+        try{
+            if(account){
+                let accountRaw = await this.rpc.getAccount(address);
+                let accountNet = await this.rpc.getAccountNet(address);
+                accountRaw = accountRaw.toObject();
+                accountNet = accountNet.toObject();
+
+                /*use node info for now*/
+                account.tokens = {};
+                for(let i = 0;i<accountRaw.assetMap.length;i++){
+                    account.tokens[accountRaw.assetMap[i][0]] = accountRaw.assetMap[i][1];
+                }
+                account.trx = accountRaw.balance;
+                account.frozen_balance= 0;
+                account.frozen_expire_time = 0;
+                if(accountRaw.frozenList.length > 0){
+                    account.frozen_balance= accountRaw.frozenList[0].frozenBalance;
+                    account.frozen_expire_time= accountRaw.frozenList[0].expireTime;
+                }
+                account.net = accountNet;
             }
-            account.trx = accountRaw.balance;
-            account.frozen_balance= 0;
-            account.frozen_expire_time = 0;
-            if(accountRaw.frozenList.length > 0){
-                account.frozen_balance= accountRaw.frozenList[0].frozenBalance;
-                account.frozen_expire_time= accountRaw.frozenList[0].expireTime;
-            }
-            account.net = accountNet;
+        }catch (e) {
+            console.log('error fetching full account:');
+            console.log(e);
         }
         return account;
     }
