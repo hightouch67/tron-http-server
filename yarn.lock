@@ -1057,6 +1057,19 @@ traverse@^0.6.6:
   version "0.6.6"
   resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.6.6.tgz#cbdf560fd7b9af632502fed40f918c157ea97137"
 
+"tron-http-tools@github:Flott-org/tron-http-tools":
+  version "1.0.30"
+  resolved "https://codeload.github.com/Flott-org/tron-http-tools/tar.gz/5ce75d39944ef7c79b7d3a93cfdc09b4a41deadd"
+  dependencies:
+    assert "^1.4.1"
+    bip39 "2.3.0"
+    btoa "^1.2.1"
+    elliptic "^6.4.0"
+    google-protobuf "^3.5.0"
+    js-sha3 "^0.7.0"
+    sha256 "^0.2.0"
+    text-encoding "^0.6.4"
+
 type-is@~1.6.15, type-is@~1.6.16:
   version "1.6.16"
   resolved "https://registry.yarnpkg.com/type-is/-/type-is-1.6.16.tgz#f89ce341541c672b25ee7ae3c73dee3b2be50194"
