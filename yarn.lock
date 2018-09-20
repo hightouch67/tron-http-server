@@ -1058,8 +1058,8 @@ traverse@^0.6.6:
   resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.6.6.tgz#cbdf560fd7b9af632502fed40f918c157ea97137"
 
 "tron-http-tools@github:Flott-org/tron-http-tools":
-  version "1.0.30"
-  resolved "https://codeload.github.com/Flott-org/tron-http-tools/tar.gz/5ce75d39944ef7c79b7d3a93cfdc09b4a41deadd"
+  version "1.0.31"
+  resolved "https://codeload.github.com/Flott-org/tron-http-tools/tar.gz/f21309eab1381039356f29d68612fef0b2523e52"
   dependencies:
     assert "^1.4.1"
     bip39 "2.3.0"
