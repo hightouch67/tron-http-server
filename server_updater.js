@@ -13,6 +13,15 @@ function buf2hex(buffer) { // buffer is an ArrayBuffer
     return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
 }
 
+const affectingContractTypes = {};
+affectingContractTypes[ContractType.TRANSFERCONTRACT] = 1;
+affectingContractTypes[ContractType.TRANSFERASSETCONTRACT] = 1;
+affectingContractTypes[ContractType.ASSETISSUECONTRACT] = 1;
+affectingContractTypes[ContractType.PARTICIPATEASSETISSUECONTRACT] = 1;
+affectingContractTypes[ContractType.ACCOUNTUPDATECONTRACT] = 1;
+affectingContractTypes[ContractType.FREEZEBALANCECONTRACT] = 1;
+affectingContractTypes[ContractType.UNFREEZEBALANCECONTRACT] = 1;
+
 module.exports = class{
 
     constructor(config, db, alertCallbacks=null){
@@ -294,12 +303,12 @@ module.exports = class{
                                 });
                             }
                                 break;
-                            
+
                             case ContractType.UNFREEZEBALANCECONTRACT: //12
                             {
                                 let contr = UnfreezeBalanceContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
-                                
+
                                 newContracts.push({
                                     block_id : i,
                                     contract_type : type,
@@ -419,6 +428,8 @@ module.exports = class{
     }
 
     async updateDbAccount(account, contracts){
+        return;
+
         let biggestBlock = account.last_block;
         for(let c in contracts){
             let contract = contracts[c];
@@ -502,17 +513,9 @@ module.exports = class{
     /*updates the accounts stored in the 'accounts' collection*/
     async updateDbAccounts(newContracts){
         /*contracts which affect the state of an account, meaning the account has to be updated.*/
-        let affectingContractTypes = {}
-        affectingContractTypes[ContractType.TRANSFERCONTRACT] = 1;
-        affectingContractTypes[ContractType.TRANSFERASSETCONTRACT] = 1;
-        affectingContractTypes[ContractType.ASSETISSUECONTRACT] = 1;
-        affectingContractTypes[ContractType.PARTICIPATEASSETISSUECONTRACT] = 1;
-        affectingContractTypes[ContractType.ACCOUNTUPDATECONTRACT] = 1;
-        affectingContractTypes[ContractType.FREEZEBALANCECONTRACT] = 1;
-        affectingContractTypes[ContractType.UNFREEZEBALANCECONTRACT] = 1;
 
         //update accounts
-        let affectedAddresses = [];
+        //let affectedAddresses = [];
         let addressContractLinks = {};
         for(let c in newContracts){
             let contract = newContracts[c];
@@ -538,7 +541,9 @@ module.exports = class{
         }
 
         let addresses = Object.keys(addressContractLinks);
-        let backupAddresses = addresses.slice();
+        //let backupAddresses = addresses.slice();
+
+        /*
         let accounts = await this.db.getAccounts(addresses);
 
         for(let a in accounts){
@@ -547,7 +552,9 @@ module.exports = class{
             let index = addresses.indexOf(account.address);
             addresses.splice(addresses.indexOf(account.address), 1);
         }
+        */
 
+        /*
         if(addresses.length > 0)
             console.log(`${addresses.length} accounts were previously unknown`);
         for(let a in addresses){
@@ -555,9 +562,10 @@ module.exports = class{
             let account = this.getNewDbAccount(address);
             await this.updateDbAccount(account, addressContractLinks[address]);
         }
+        */
 
         if(this.alertCallbacks !== null){
-            this.alertCallbacks(backupAddresses);
+            this.alertCallbacks(addresses);
         }
     }
 
