@@ -269,7 +269,7 @@ module.exports = class{
                             case ContractType.ACCOUNTUPDATECONTRACT: { //10
                                 let contr = AccountUpdateContract.deserializeBinary(Uint8Array.from(value));
                                 let ownerAddress = getBase58CheckAddress(Array.from(contr.getOwnerAddress()));
-                                let accountName = String.fromCharCode.apply(null, contr.getAccountName());
+                                let accountName = "";
 
                                 newContracts.push({
                                     block_id : i,
