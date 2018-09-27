@@ -25,6 +25,10 @@ module.exports = class{
 
         app.get('/', async (req, res) => {
             res.set({'Content-Type': 'application/json; charset=utf-8'});
+
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Headers", "X-Requested-With");
+
             res.send(JSON.stringify({
                 grpc : {
                     methods : {
