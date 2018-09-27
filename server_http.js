@@ -197,6 +197,8 @@ module.exports = class{
         });
 
         app.get('/getAccount', async (req, res) => {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Headers", "X-Requested-With");
             let account = await this.getFullAccount(req.query.address).catch(x => null);
             res.send(account);
         });
