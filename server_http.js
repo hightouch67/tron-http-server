@@ -126,6 +126,8 @@ module.exports = class{
         });
 
         app.get('/grpc/getAccount', async (req, res) => {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Headers", "X-Requested-With");
             try{
               let accountRaw = await rpc.getAccount(req.query.address).catch(x => null);
               let serializedBase64 = tools.utils.base64EncodeToString(accountRaw.serializeBinary());
