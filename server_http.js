@@ -220,6 +220,8 @@ module.exports = class{
         });
 
         app.get('/getTransactionsRelatedToThis', async (req, res) => {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Headers", "X-Requested-With");
             let transactions = await this.db.getContractsRelatedToThis(req.query.address).catch(x => null);
             if(req.query.start){
                 let start = parseInt(req.query.start);
