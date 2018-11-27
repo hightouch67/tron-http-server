@@ -519,7 +519,7 @@ module.exports = class{
         let addressContractLinks = {};
         for(let c in newContracts){
             let contract = newContracts[c];
-            if(affectingContractTypes[contract.contract_type]){
+            if(true && affectingContractTypes[contract.contract_type]){ //enabled for everything for now. Only used for alerts anyway
                 //console.log(`contract of type ${contract.contract_desc} is affecting balance`);
 
                 let ownerAddress = contract.owner_address;
